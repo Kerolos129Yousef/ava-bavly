@@ -47,6 +47,11 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
+
+  // Unlink persons and users before deleting
+  await prisma.person.updateMany({ where: { servantId: id }, data: { servantId: null } });
+  await prisma.user.updateMany({ where: { servantId: id }, data: { servantId: null } });
+
   await prisma.servant.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

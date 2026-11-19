@@ -20,6 +20,20 @@ interface Servant {
 
 export default function ServantsList({ servants, canAdd = true }: { servants: Servant[]; canAdd?: boolean }) {
   const router = useRouter();
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const handleDelete = async (s: Servant) => {
+    if (!confirm(`هل أنت متأكد من حذف الخادم "${s.name}"؟`)) return;
+    setDeleting(s.id);
+    const res = await fetch(`/api/servants/${s.id}`, { method: "DELETE" });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      alert(data.error || "خطأ في الحذف");
+    }
+    setDeleting(null);
+  };
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -132,11 +146,22 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-lg truncate" style={{ color: "var(--navy)" }}>{s.name}</h3>
-                    <Link href={`/servants/${s.id}/edit`}
-                      className="text-xs px-2 py-1 rounded hover:opacity-80 flex-shrink-0"
-                      style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
-                      تعديل ✏️
-                    </Link>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Link href={`/servants/${s.id}/edit`}
+                        className="text-xs px-2 py-1 rounded hover:opacity-80"
+                        style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+                        تعديل ✏️
+                      </Link>
+                      {canAdd && (
+                        <button
+                          onClick={() => handleDelete(s)}
+                          disabled={deleting === s.id}
+                          className="text-xs px-2 py-1 rounded hover:opacity-80 disabled:opacity-50"
+                          style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>
+                          {deleting === s.id ? "..." : "حذف"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {s.job && <p className="text-sm truncate" style={{ color: "var(--gold-dark)" }}>{s.job}</p>}
                 </div>
