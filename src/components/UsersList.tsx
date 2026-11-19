@@ -12,6 +12,7 @@ interface User {
   role: string;
   servantId?: string | null;
   classId?: string | null;
+  suspended?: boolean;
 }
 
 const roleLabels: Record<string, string> = {
@@ -40,6 +41,7 @@ export default function UsersList({
   const [editForm, setEditForm] = useState({ name: "", role: "", servantId: "", classId: "", password: "" });
   const [editError, setEditError] = useState("");
   const [editLoading, setEditLoading] = useState(false);
+  const [suspendingId, setSuspendingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +93,24 @@ export default function UsersList({
       setEditError(data.error);
     }
     setEditLoading(false);
+  };
+
+  const handleSuspend = async (u: User) => {
+    const action = u.suspended ? "تفعيل" : "تعليق";
+    if (!confirm(`هل أنت متأكد من ${action} المستخدم "${u.name}"؟`)) return;
+    setSuspendingId(u.id);
+    const res = await fetch(`/api/users/${u.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: u.name, role: u.role, servantId: u.servantId || "", classId: u.classId || "", suspended: !u.suspended }),
+    });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      alert(data.error || "خطأ");
+    }
+    setSuspendingId(null);
   };
 
   const handleDelete = async (u: User) => {
@@ -164,7 +184,7 @@ export default function UsersList({
 
       <div className="space-y-3">
         {users.map((u) => (
-          <div key={u.id} className="church-card p-4" style={{ borderRight: "3px solid var(--gold)" }}>
+          <div key={u.id} className="church-card p-4" style={{ borderRight: `3px solid ${u.suspended ? "var(--burgundy)" : "var(--gold)"}`, opacity: u.suspended ? 0.7 : 1 }}>
             {editingId === u.id ? (
               <form onSubmit={handleEdit} className="space-y-3">
                 {editError && <div className="p-2 rounded-lg text-sm" style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>{editError}</div>}
@@ -219,10 +239,23 @@ export default function UsersList({
                     <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
                       {roleLabels[u.role] || u.role}
                     </span>
+                    {u.suspended && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "rgba(122, 45, 60, 0.15)", color: "var(--burgundy)" }}>
+                        معلّق
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm mt-0.5" style={{ color: "var(--navy-light)" }}>{u.username}</p>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <button
+                    onClick={() => handleSuspend(u)}
+                    disabled={suspendingId === u.id}
+                    className="px-3 py-1.5 rounded-lg text-sm transition-colors disabled:opacity-50"
+                    style={{ background: u.suspended ? "rgba(34,139,34,0.1)" : "rgba(122, 45, 60, 0.1)", color: u.suspended ? "#228b22" : "var(--burgundy)" }}
+                  >
+                    {suspendingId === u.id ? "..." : u.suspended ? "تفعيل" : "تعليق"}
+                  </button>
                   <button
                     onClick={() => startEdit(u)}
                     className="px-3 py-1.5 rounded-lg text-sm transition-colors"

@@ -10,7 +10,7 @@ export default async function UsersPage() {
 
   const [users, servants, classes] = await Promise.all([
     prisma.user.findMany({
-      select: { id: true, username: true, name: true, role: true, servantId: true, classId: true },
+      select: { id: true, username: true, name: true, role: true, servantId: true, classId: true, suspended: true },
       orderBy: { createdAt: "desc" },
     }),
     prisma.servant.findMany({ select: { id: true, name: true } }),

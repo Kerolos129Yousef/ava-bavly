@@ -10,6 +10,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "بيانات الدخول غلط" }, { status: 401 });
   }
 
+  if (user.suspended) {
+    return NextResponse.json({ error: "الحساب معلّق — تواصل مع أمين الخدمة" }, { status: 403 });
+  }
+
   await createSession(user.id);
   return NextResponse.json({ ok: true, role: user.role });
 }

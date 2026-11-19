@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, username: true, name: true, role: true, servantId: true, classId: true },
+    select: { id: true, username: true, name: true, role: true, servantId: true, classId: true, suspended: true },
   });
   if (!user) return NextResponse.json({ error: "مستخدم غير موجود" }, { status: 404 });
   return NextResponse.json(user);
@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
 
   const { id } = await params;
-  const { name, role, servantId, classId, password } = await req.json();
+  const { name, role, servantId, classId, password, suspended } = await req.json();
 
   if (!name?.trim() || !role) {
     return NextResponse.json({ error: "الاسم والدور مطلوبين" }, { status: 400 });
@@ -34,6 +34,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     servantId: role === "SERVANT" ? (servantId || null) : null,
     classId: role === "CLASS_ADMIN" ? (classId || null) : null,
   };
+
+  if (typeof suspended === "boolean") {
+    data.suspended = suspended;
+  }
 
   if (password?.trim()) {
     data.password = await hashPassword(password.trim());

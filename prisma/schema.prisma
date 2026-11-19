@@ -14,6 +14,7 @@ model User {
   password  String
   name      String
   role      String   // SERVANT, CLASS_ADMIN, MINISTRY_ADMIN
+  suspended Boolean  @default(false)
   servantId String?
   servant   Servant? @relation(fields: [servantId], references: [id])
   classId   String?
