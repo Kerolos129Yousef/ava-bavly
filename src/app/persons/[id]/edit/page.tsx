@@ -30,6 +30,18 @@ export default async function EditPersonPage({
         disabilityCause: person.disabilityCause || "",
         classId: person.classId || "",
         notes: person.notes || "",
+        medications: person.medications || "",
+        allergies: person.allergies || "",
+        medicalHistory: person.medicalHistory || "",
+        doctorName: person.doctorName || "",
+        doctorPhone: person.doctorPhone || "",
+        cognitiveSkills: person.cognitiveSkills || "3",
+        physicalSkills: person.physicalSkills || "3",
+        socialSkills: person.socialSkills || "3",
+        communicationSkills: person.communicationSkills || "3",
+        selfCareSkills: person.selfCareSkills || "3",
+        dailyLivingNote: person.dailyLivingNote || "",
+        servantId: person.servantId || "",
       }}
     />
   );

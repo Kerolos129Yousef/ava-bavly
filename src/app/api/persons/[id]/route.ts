@@ -8,7 +8,7 @@ export async function GET(
   const { id } = await params;
   const person = await prisma.person.findUnique({
     where: { id },
-    include: { class: true, behaviorNotes: true },
+    include: { class: true, behaviorNotes: true, servant: true, aiRecommendations: { orderBy: { createdAt: "desc" }, take: 5 } },
   });
   if (!person) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(person);
@@ -34,6 +34,18 @@ export async function PUT(
       disabilityCause: data.disabilityCause || null,
       classId: data.classId || null,
       notes: data.notes || null,
+      medications: data.medications || null,
+      allergies: data.allergies || null,
+      medicalHistory: data.medicalHistory || null,
+      doctorName: data.doctorName || null,
+      doctorPhone: data.doctorPhone || null,
+      cognitiveSkills: data.cognitiveSkills || null,
+      physicalSkills: data.physicalSkills || null,
+      socialSkills: data.socialSkills || null,
+      communicationSkills: data.communicationSkills || null,
+      selfCareSkills: data.selfCareSkills || null,
+      dailyLivingNote: data.dailyLivingNote || null,
+      servantId: data.servantId || null,
     },
   });
   return NextResponse.json(person);
