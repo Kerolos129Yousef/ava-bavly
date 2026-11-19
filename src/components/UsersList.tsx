@@ -10,6 +10,8 @@ interface User {
   username: string;
   name: string;
   role: string;
+  servantId?: string | null;
+  classId?: string | null;
 }
 
 const roleLabels: Record<string, string> = {
@@ -17,6 +19,8 @@ const roleLabels: Record<string, string> = {
   CLASS_ADMIN: "أمين فصل",
   MINISTRY_ADMIN: "أمين الخدمة",
 };
+
+const emptyForm = { username: "", password: "", name: "", role: "SERVANT", servantId: "", classId: "" };
 
 export default function UsersList({
   users,
@@ -29,30 +33,25 @@ export default function UsersList({
 }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-    name: "",
-    role: "SERVANT",
-    servantId: "",
-    classId: "",
-  });
+  const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", role: "", servantId: "", classId: "", password: "" });
+  const [editError, setEditError] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-
     if (res.ok) {
-      setForm({ username: "", password: "", name: "", role: "SERVANT", servantId: "", classId: "" });
+      setForm(emptyForm);
       setShowForm(false);
       router.refresh();
     } else {
@@ -60,6 +59,49 @@ export default function UsersList({
       setError(data.error);
     }
     setLoading(false);
+  };
+
+  const startEdit = (u: User) => {
+    setEditingId(u.id);
+    setEditForm({
+      name: u.name,
+      role: u.role,
+      servantId: u.servantId || "",
+      classId: u.classId || "",
+      password: "",
+    });
+    setEditError("");
+  };
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+    setEditLoading(true);
+    setEditError("");
+    const res = await fetch(`/api/users/${editingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+    if (res.ok) {
+      setEditingId(null);
+      router.refresh();
+    } else {
+      const data = await res.json();
+      setEditError(data.error);
+    }
+    setEditLoading(false);
+  };
+
+  const handleDelete = async (u: User) => {
+    if (!confirm(`هل أنت متأكد من حذف المستخدم "${u.name}"؟`)) return;
+    const res = await fetch(`/api/users/${u.id}`, { method: "DELETE" });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      alert(data.error || "خطأ في الحذف");
+    }
   };
 
   return (
@@ -74,122 +116,135 @@ export default function UsersList({
       {showForm && (
         <form onSubmit={handleSubmit} className="church-card p-6 mb-6 space-y-4" style={{ borderTop: "3px solid var(--gold)" }}>
           {error && <div className="p-3 rounded-lg text-sm" style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>{error}</div>}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">اسم المستخدم</label>
-              <input
-                type="text"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              />
+              <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} className="w-full border rounded-lg px-3 py-2" required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">كلمة المرور</label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              />
+              <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full border rounded-lg px-3 py-2" required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">الاسم</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
-                required
-              />
+              <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border rounded-lg px-3 py-2" required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">الدور</label>
-              <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
-              >
+              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border rounded-lg px-3 py-2">
                 <option value="SERVANT">خادم</option>
                 <option value="CLASS_ADMIN">أمين فصل</option>
                 <option value="MINISTRY_ADMIN">أمين الخدمة</option>
               </select>
             </div>
-
             {form.role === "SERVANT" && (
               <div>
                 <label className="block text-sm font-medium mb-1">ربط بخادم</label>
-                <select
-                  value={form.servantId}
-                  onChange={(e) => setForm({ ...form, servantId: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                >
+                <select value={form.servantId} onChange={(e) => setForm({ ...form, servantId: e.target.value })} className="w-full border rounded-lg px-3 py-2">
                   <option value="">-- اختر خادم --</option>
-                  {servants.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
+                  {servants.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
             )}
-
             {form.role === "CLASS_ADMIN" && (
               <div>
                 <label className="block text-sm font-medium mb-1">ربط بفصل</label>
-                <select
-                  value={form.classId}
-                  onChange={(e) => setForm({ ...form, classId: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                >
+                <select value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value })} className="w-full border rounded-lg px-3 py-2">
                   <option value="">-- اختر فصل --</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
             )}
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-gold disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="btn-gold disabled:opacity-50">
             {loading ? "جاري الحفظ..." : "إضافة"}
           </button>
         </form>
       )}
 
-      <div className="church-card overflow-hidden">
-        <table className="w-full">
-          <thead style={{ background: "var(--gold-pale)" }}>
-            <tr>
-              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>الاسم</th>
-              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>المستخدم</th>
-              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>الدور</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y" style={{ borderColor: "var(--gold-pale)" }}>
-            {users.map((u) => (
-              <tr key={u.id} className="hover:opacity-90" style={{ transition: "background 0.15s" }}>
-                <td className="px-4 py-3 font-medium" style={{ color: "var(--navy)" }}>{u.name}</td>
-                <td className="px-4 py-3 text-sm" style={{ color: "var(--navy-light)" }}>{u.username}</td>
-                <td className="px-4 py-3">
-                  <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
-                    {roleLabels[u.role] || u.role}
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {users.length === 0 && (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center" style={{ color: "var(--navy-light)" }}>لا يوجد مستخدمين</td>
-              </tr>
+      <div className="space-y-3">
+        {users.map((u) => (
+          <div key={u.id} className="church-card p-4" style={{ borderRight: "3px solid var(--gold)" }}>
+            {editingId === u.id ? (
+              <form onSubmit={handleEdit} className="space-y-3">
+                {editError && <div className="p-2 rounded-lg text-sm" style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>{editError}</div>}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1">الاسم</label>
+                    <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">الدور</label>
+                    <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option value="SERVANT">خادم</option>
+                      <option value="CLASS_ADMIN">أمين فصل</option>
+                      <option value="MINISTRY_ADMIN">أمين الخدمة</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">كلمة مرور جديدة (اختياري)</label>
+                    <input type="password" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="اتركه فارغ لعدم التغيير" />
+                  </div>
+                  {editForm.role === "SERVANT" && (
+                    <div>
+                      <label className="block text-xs font-medium mb-1">ربط بخادم</label>
+                      <select value={editForm.servantId} onChange={(e) => setEditForm({ ...editForm, servantId: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option value="">-- اختر خادم --</option>
+                        {servants.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    </div>
+                  )}
+                  {editForm.role === "CLASS_ADMIN" && (
+                    <div>
+                      <label className="block text-xs font-medium mb-1">ربط بفصل</label>
+                      <select value={editForm.classId} onChange={(e) => setEditForm({ ...editForm, classId: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option value="">-- اختر فصل --</option>
+                        {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" disabled={editLoading} className="btn-gold text-sm disabled:opacity-50">
+                    {editLoading ? "..." : "حفظ"}
+                  </button>
+                  <button type="button" onClick={() => setEditingId(null)} className="btn-navy text-sm">إلغاء</button>
+                </div>
+              </form>
+            ) : (
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold" style={{ color: "var(--navy)" }}>{u.name}</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+                      {roleLabels[u.role] || u.role}
+                    </span>
+                  </div>
+                  <p className="text-sm mt-0.5" style={{ color: "var(--navy-light)" }}>{u.username}</p>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  <button
+                    onClick={() => startEdit(u)}
+                    className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+                    style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}
+                  >
+                    تعديل
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u)}
+                    className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+                    style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}
+                  >
+                    حذف
+                  </button>
+                </div>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        ))}
+        {users.length === 0 && (
+          <div className="church-card text-center py-8" style={{ color: "var(--navy-light)" }}>لا يوجد مستخدمين</div>
+        )}
       </div>
     </div>
   );
