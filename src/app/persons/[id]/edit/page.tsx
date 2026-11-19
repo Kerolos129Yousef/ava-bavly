@@ -1,17 +1,21 @@
 import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { getSession, canAccessPerson } from "@/lib/auth";
+import { notFound, redirect } from "next/navigation";
 import PersonForm from "@/components/PersonForm";
-
 
 export default async function EditPersonPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const { id } = await params;
   const person = await prisma.person.findUnique({ where: { id } });
 
   if (!person) return notFound();
+  if (!canAccessPerson(session, person)) return notFound();
 
   return (
     <PersonForm

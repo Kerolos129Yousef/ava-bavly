@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
+import { getSession, canAccessPerson } from "@/lib/auth";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import DeleteButton from "@/components/DeleteButton";
 import BehaviorLog from "@/components/BehaviorLog";
 import AIRecommendations from "@/components/AIRecommendations";
@@ -10,6 +11,9 @@ export default async function PersonDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const { id } = await params;
   const person = await prisma.person.findUnique({
     where: { id },
@@ -22,6 +26,10 @@ export default async function PersonDetailPage({
   });
 
   if (!person) return notFound();
+  if (!canAccessPerson(session, person)) return notFound();
+
+  const canEdit = session.role !== "SERVANT" || session.servantId === person.servantId;
+  const canDelete = session.role !== "SERVANT";
 
   const skillLabels: Record<string, string> = {
     "1": "ضعيف جداً",
@@ -70,13 +78,15 @@ export default async function PersonDetailPage({
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">{person.name}</h1>
           <div className="flex gap-2">
-            <Link
-              href={`/persons/${person.id}/edit`}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
-            >
-              تعديل
-            </Link>
-            <DeleteButton personId={person.id} />
+            {canEdit && (
+              <Link
+                href={`/persons/${person.id}/edit`}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
+              >
+                تعديل
+              </Link>
+            )}
+            {canDelete && <DeleteButton personId={person.id} />}
           </div>
         </div>
 

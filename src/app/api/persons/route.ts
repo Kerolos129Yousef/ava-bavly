@@ -1,8 +1,20 @@
 import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+
+  let where = {};
+  if (session.role === "SERVANT") {
+    where = { servantId: session.servantId };
+  } else if (session.role === "CLASS_ADMIN") {
+    where = { classId: session.classId };
+  }
+
   const persons = await prisma.person.findMany({
+    where,
     include: { class: true },
     orderBy: { createdAt: "desc" },
   });
@@ -10,7 +22,18 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+  if (session.role === "SERVANT") {
+    return NextResponse.json({ error: "غير مسموح بإضافة حالات" }, { status: 403 });
+  }
+
   const data = await req.json();
+
+  if (session.role === "CLASS_ADMIN" && data.classId !== session.classId) {
+    return NextResponse.json({ error: "غير مسموح بإضافة حالات لفصل تاني" }, { status: 403 });
+  }
+
   const person = await prisma.person.create({
     data: {
       name: data.name,

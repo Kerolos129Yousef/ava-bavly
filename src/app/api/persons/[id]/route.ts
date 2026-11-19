@@ -1,16 +1,25 @@
 import { prisma } from "@/lib/db";
+import { getSession, canAccessPerson } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+
   const { id } = await params;
   const person = await prisma.person.findUnique({
     where: { id },
     include: { class: true, behaviorNotes: true, servant: true, aiRecommendations: { orderBy: { createdAt: "desc" }, take: 5 } },
   });
   if (!person) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (!canAccessPerson(session, person)) {
+    return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
+  }
+
   return NextResponse.json(person);
 }
 
@@ -18,7 +27,17 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+
   const { id } = await params;
+  const existing = await prisma.person.findUnique({ where: { id } });
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (!canAccessPerson(session, existing)) {
+    return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
+  }
+
   const data = await req.json();
   const person = await prisma.person.update({
     where: { id },
@@ -55,7 +74,20 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+  if (session.role === "SERVANT") {
+    return NextResponse.json({ error: "غير مسموح بالحذف" }, { status: 403 });
+  }
+
   const { id } = await params;
+  const existing = await prisma.person.findUnique({ where: { id } });
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (session.role === "CLASS_ADMIN" && existing.classId !== session.classId) {
+    return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
+  }
+
   await prisma.person.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

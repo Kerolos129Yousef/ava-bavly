@@ -139,7 +139,7 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
   const skillSlider = (label: string, key: keyof PersonData) => (
     <div>
       <label className="block text-sm font-medium mb-1">
-        {label}: <span className="text-blue-700">{skillLabels[form[key]] || "متوسط"}</span>
+        {label}: <span className="text-blue-700">{skillLabels[form[key] as string] || "متوسط"}</span>
       </label>
       <input
         type="range"

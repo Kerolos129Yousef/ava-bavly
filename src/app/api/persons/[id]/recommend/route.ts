@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getSession, canAccessPerson } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
@@ -8,6 +9,9 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
+
   const { id } = await params;
   const person = await prisma.person.findUnique({
     where: { id },
@@ -20,6 +24,10 @@ export async function POST(
 
   if (!person) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (!canAccessPerson(session, person)) {
+    return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
   }
 
   const skillLabels: Record<string, string> = {

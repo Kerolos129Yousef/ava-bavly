@@ -13,7 +13,7 @@ interface Servant {
   persons: { id: string; name: string }[];
 }
 
-export default function ServantsList({ servants }: { servants: Servant[] }) {
+export default function ServantsList({ servants, canAdd = true }: { servants: Servant[]; canAdd?: boolean }) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
@@ -39,14 +39,16 @@ export default function ServantsList({ servants }: { servants: Servant[] }) {
 
   return (
     <div>
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 mb-4"
-      >
-        {showForm ? "إلغاء" : "+ إضافة خادم"}
-      </button>
+      {canAdd && (
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 mb-4"
+        >
+          {showForm ? "إلغاء" : "+ إضافة خادم"}
+        </button>
+      )}
 
-      {showForm && (
+      {showForm && canAdd && (
         <div className="bg-white rounded-xl shadow p-4 mb-4 flex gap-3 items-end">
           <div className="flex-1">
             <label className="block text-sm font-medium mb-1">الاسم *</label>

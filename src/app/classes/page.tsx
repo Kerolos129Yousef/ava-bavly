@@ -1,9 +1,20 @@
 import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
-
 export default async function ClassesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  if (session.role === "SERVANT") redirect("/");
+
+  let classWhere = {};
+  if (session.role === "CLASS_ADMIN") {
+    classWhere = { id: session.classId };
+  }
+
   const classes = await prisma.class.findMany({
+    where: classWhere,
     include: {
       persons: {
         orderBy: { name: "asc" },
