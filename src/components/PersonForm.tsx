@@ -80,18 +80,39 @@ export default function PersonForm({ person, userRole }: { person?: Partial<Pers
   });
   const [uploading, setUploading] = useState(false);
 
+  const compressImage = (file: File, maxW = 400, quality = 0.7): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => resolve(b!), "image/jpeg", quality);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    if (res.ok) {
-      const { url } = await res.json();
-      setForm((prev) => ({ ...prev, photo: url }));
+    try {
+      const compressed = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", new File([compressed], "photo.jpg", { type: "image/jpeg" }));
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        setForm((prev) => ({ ...prev, photo: url }));
+      } else {
+        const err = await res.json();
+        alert(err.error || "خطأ في رفع الصورة");
+      }
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   useEffect(() => {
