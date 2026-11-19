@@ -1,6 +1,10 @@
-const CACHE_NAME = "ava-bavly-v3";
+const CACHE_NAME = "ava-bavly-v4";
+const PRECACHE_URLS = ["/"];
 
 self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+  );
   self.skipWaiting();
 });
 
