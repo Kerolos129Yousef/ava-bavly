@@ -1,9 +1,11 @@
-const CACHE_NAME = "ava-bavly-v4";
-const PRECACHE_URLS = ["/"];
+const CACHE_NAME = "ava-bavly-v5";
+const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll([OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"])
+    )
   );
   self.skipWaiting();
 });
@@ -23,6 +25,15 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
 
   if (url.pathname.startsWith("/api/")) return;
+
+  if (e.request.mode === "navigate") {
+    e.respondWith(
+      fetch(e.request).catch(() =>
+        caches.match(OFFLINE_URL)
+      )
+    );
+    return;
+  }
 
   e.respondWith(
     fetch(e.request)
