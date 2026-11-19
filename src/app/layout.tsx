@@ -29,6 +29,9 @@ export default function RootLayout({
               <a href="/classes" className="hover:text-blue-200">
                 الفصول
               </a>
+              <a href="/reports" className="hover:text-blue-200">
+                التقارير
+              </a>
             </div>
           </div>
         </nav>
