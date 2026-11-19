@@ -72,7 +72,7 @@ export default async function Home() {
         </p>
         <p className="text-5xl font-bold" style={{ color: "var(--navy)" }}>{totalPersons}</p>
         <div className="mt-2 mx-auto w-16 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
-        <div className="mt-6 flex justify-center gap-4">
+        <div className="mt-6 flex flex-wrap justify-center gap-4">
           {session.role !== "SERVANT" && (
             <Link href="/persons/new" className="btn-gold">
               + إضافة مخدوم جديد
