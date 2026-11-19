@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-bavly-v2";
+const CACHE_NAME = "ava-bavly-v3";
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
