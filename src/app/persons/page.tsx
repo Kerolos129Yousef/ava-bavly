@@ -2,7 +2,8 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import PersonsTable from "@/components/PersonsTable";
+
+export const dynamic = "force-dynamic";
 
 export default async function PersonsPage() {
   const session = await getSession();
@@ -15,49 +16,67 @@ export default async function PersonsPage() {
     personWhere = { classId: session.classId };
   }
 
-  const [persons, classes] = await Promise.all([
-    prisma.person.findMany({
-      where: personWhere,
-      include: { class: true },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.class.findMany({ orderBy: { name: "asc" } }),
-  ]);
+  const persons = await prisma.person.findMany({
+    where: personWhere,
+    include: { class: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">الحالات</h1>
+        <h1 className="text-2xl font-bold font-amiri" style={{ color: "var(--navy)" }}>
+          <span style={{ color: "var(--gold)" }}>☦</span> المخدومين
+        </h1>
         {session.role !== "SERVANT" && (
-          <Link
-            href="/persons/new"
-            className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800"
-          >
-            + إضافة حالة
+          <Link href="/persons/new" className="btn-gold">
+            + إضافة مخدوم
           </Link>
         )}
       </div>
 
       {persons.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">لا توجد حالات مسجلة</p>
+        <div className="church-card text-center py-16">
+          <p className="text-4xl mb-4" style={{ color: "var(--gold)" }}>🕊</p>
+          <p className="text-lg" style={{ color: "var(--navy-light)" }}>لا يوجد مخدومين مسجلين</p>
           {session.role !== "SERVANT" && (
-            <Link href="/persons/new" className="text-blue-600 hover:underline mt-2 block">
-              أضف أول حالة
+            <Link href="/persons/new" className="btn-gold inline-block mt-4">
+              أضف أول مخدوم
             </Link>
           )}
         </div>
       ) : (
-        <PersonsTable
-          persons={persons.map((p) => ({
-            id: p.id,
-            name: p.name,
-            disabilityType: p.disabilityType,
-            guardianName: p.guardianName,
-            class: p.class ? { id: p.class.id, name: p.class.name } : null,
-          }))}
-          classes={classes.map((c) => ({ id: c.id, name: c.name }))}
-        />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {persons.map((p) => (
+            <Link
+              key={p.id}
+              href={`/persons/${p.id}`}
+              className="church-card p-4 flex flex-col items-center text-center group transition-all"
+            >
+              {p.photo ? (
+                <img
+                  src={p.photo}
+                  alt={p.name}
+                  className="w-24 h-24 rounded-full object-cover transition-all group-hover:border-gold"
+                  style={{ border: "3px solid var(--gold-pale)" }}
+                />
+              ) : (
+                <div
+                  className="w-24 h-24 rounded-full flex items-center justify-center text-3xl transition-all"
+                  style={{ background: "var(--gold-pale)", border: "3px solid var(--cream-dark)", color: "var(--gold-dark)" }}
+                >
+                  👤
+                </div>
+              )}
+              <h3 className="mt-3 font-bold text-sm" style={{ color: "var(--navy)" }}>{p.name}</h3>
+              {p.class && (
+                <span className="text-xs mt-1 px-2 py-0.5 rounded-full" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+                  {p.class.name}
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );

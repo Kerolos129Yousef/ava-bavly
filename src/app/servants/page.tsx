@@ -24,13 +24,20 @@ export default async function ServantsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">الخدام</h1>
+      <h1 className="text-2xl font-bold mb-6 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> الخدام
+      </h1>
       <ServantsList
         servants={servants.map((s) => ({
           id: s.id,
           name: s.name,
           phone: s.phone,
           email: s.email,
+          photo: s.photo,
+          address: s.address,
+          education: s.education,
+          maritalStatus: s.maritalStatus,
+          job: s.job,
           personsCount: s._count.persons,
           persons: s.persons,
         }))}

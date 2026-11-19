@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
       name: data.name,
       phone: data.phone || null,
       email: data.email || null,
+      address: data.address || null,
+      education: data.education || null,
+      maritalStatus: data.maritalStatus || null,
+      job: data.job || null,
     },
   });
   return NextResponse.json(servant, { status: 201 });

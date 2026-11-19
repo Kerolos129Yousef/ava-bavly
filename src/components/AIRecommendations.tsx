@@ -42,13 +42,15 @@ export default function AIRecommendations({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
+    <div className="church-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">توصيات AI لـ {personName}</h2>
+        <h2 className="text-lg font-bold font-amiri" style={{ color: "var(--navy)" }}>
+          <span style={{ color: "var(--gold)" }}>☦</span> توصيات AI لـ {personName}
+        </h2>
         <button
           onClick={getRecommendation}
           disabled={loading}
-          className="bg-purple-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-800 disabled:opacity-50 flex items-center gap-2"
+          className="btn-gold disabled:opacity-50 flex items-center gap-2"
         >
           {loading ? (
             <>
@@ -56,26 +58,26 @@ export default function AIRecommendations({
               جاري التحليل...
             </>
           ) : (
-            "🤖 طلب توصيات جديدة"
+            "طلب توصيات جديدة"
           )}
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-lg mb-4 text-sm">
+        <div className="p-3 rounded-lg mb-4 text-sm" style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>
           {error}
         </div>
       )}
 
       {loading && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8" style={{ color: "var(--navy-light)" }}>
           <p className="text-lg mb-2">جاري تحليل بيانات المخدوم...</p>
           <p className="text-sm">ده ممكن ياخد شوية وقت حسب الموديل</p>
         </div>
       )}
 
       {recommendations.length === 0 && !loading ? (
-        <p className="text-gray-500 text-sm">
+        <p className="text-sm" style={{ color: "var(--navy-light)" }}>
           اضغط &quot;طلب توصيات جديدة&quot; عشان الذكاء الاصطناعي يحلل حالة
           المخدوم ويقترح خطة عمل
         </p>
@@ -85,17 +87,18 @@ export default function AIRecommendations({
             <details
               key={rec.id}
               open={i === 0}
-              className="border rounded-lg"
+              className="rounded-lg"
+              style={{ border: "1px solid var(--gold-pale)" }}
             >
-              <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 font-medium text-sm flex justify-between items-center">
+              <summary className="px-4 py-3 cursor-pointer font-medium text-sm flex justify-between items-center" style={{ color: "var(--navy)" }}>
                 <span>
                   توصية {new Date(rec.createdAt).toLocaleDateString("ar-EG")}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs" style={{ color: "var(--gold-dark)" }}>
                   {new Date(rec.createdAt).toLocaleTimeString("ar-EG")}
                 </span>
               </summary>
-              <div className="px-4 pb-4 prose prose-sm max-w-none text-sm leading-relaxed whitespace-pre-wrap">
+              <div className="px-4 pb-4 prose prose-sm max-w-none text-sm leading-relaxed whitespace-pre-wrap" style={{ borderTop: "1px solid var(--gold-pale)" }}>
                 {rec.content}
               </div>
             </details>

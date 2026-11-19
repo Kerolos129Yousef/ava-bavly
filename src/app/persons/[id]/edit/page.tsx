@@ -19,9 +19,11 @@ export default async function EditPersonPage({
 
   return (
     <PersonForm
+      userRole={session.role}
       person={{
         id: person.id,
         name: person.name,
+        photo: person.photo || "",
         birthDate: person.birthDate
           ? new Date(person.birthDate).toISOString().split("T")[0]
           : "",

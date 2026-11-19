@@ -16,6 +16,7 @@ interface ServantOption {
 interface PersonData {
   id?: string;
   name: string;
+  photo: string;
   birthDate: string;
   gender: string;
   phone: string;
@@ -42,6 +43,7 @@ interface PersonData {
 
 const defaultForm: PersonData = {
   name: "",
+  photo: "",
   birthDate: "",
   gender: "",
   phone: "",
@@ -66,7 +68,7 @@ const defaultForm: PersonData = {
   servantId: "",
 };
 
-export default function PersonForm({ person }: { person?: Partial<PersonData> }) {
+export default function PersonForm({ person, userRole }: { person?: Partial<PersonData>; userRole?: string }) {
   const router = useRouter();
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [servants, setServants] = useState<ServantOption[]>([]);
@@ -76,10 +78,25 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
     ...defaultForm,
     ...person,
   });
+  const [uploading, setUploading] = useState(false);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    if (res.ok) {
+      const { url } = await res.json();
+      setForm((prev) => ({ ...prev, photo: url }));
+    }
+    setUploading(false);
+  };
 
   useEffect(() => {
-    fetch("/api/classes").then((r) => r.json()).then(setClasses);
-    fetch("/api/servants").then((r) => r.json()).then(setServants);
+    fetch("/api/classes").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setClasses(d); });
+    fetch("/api/servants").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setServants(d); });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,7 +128,7 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
         type={type}
         value={form[key]}
         onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full border rounded-lg px-3 py-2"
       />
     </div>
   );
@@ -139,7 +156,7 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
   const skillSlider = (label: string, key: keyof PersonData) => (
     <div>
       <label className="block text-sm font-medium mb-1">
-        {label}: <span className="text-blue-700">{skillLabels[form[key] as string] || "متوسط"}</span>
+        {label}: <span style={{ color: "var(--gold-dark)" }}>{skillLabels[form[key] as string] || "متوسط"}</span>
       </label>
       <input
         type="range"
@@ -147,7 +164,8 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
         max="5"
         value={form[key]}
         onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className="w-full accent-blue-700"
+        className="w-full"
+                style={{ accentColor: "var(--gold)" }}
       />
       <div className="flex justify-between text-xs text-gray-400 mt-1">
         <span>ضعيف جداً</span>
@@ -163,22 +181,22 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">
-        {person?.id ? "تعديل حالة" : "إضافة حالة جديدة"}
+    <form onSubmit={handleSubmit} className="church-card p-6 max-w-3xl mx-auto" style={{ borderTop: "3px solid var(--gold)" }}>
+      <h2 className="text-xl font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> {person?.id ? "تعديل مخدوم" : "إضافة مخدوم جديد"}
       </h2>
 
-      <div className="flex gap-2 mb-6 border-b">
+      <div className="flex gap-2 mb-6" style={{ borderBottom: "2px solid var(--gold-pale)" }}>
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition ${
-              tab === t.id
-                ? "border-blue-700 text-blue-700"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            className="px-4 py-2 text-sm font-medium -mb-px transition"
+            style={{
+              borderBottom: tab === t.id ? "2px solid var(--gold)" : "2px solid transparent",
+              color: tab === t.id ? "var(--gold-dark)" : "var(--navy-light)",
+            }}
           >
             {t.label}
           </button>
@@ -187,6 +205,30 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
 
       {tab === "basic" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2 flex flex-col items-center gap-3">
+            {form.photo ? (
+              <img
+                src={form.photo}
+                alt="صورة المخدوم"
+                className="w-32 h-32 rounded-full object-cover shadow-md"
+                style={{ border: "4px solid var(--gold)" }}
+              />
+            ) : (
+              <div className="w-32 h-32 rounded-full flex items-center justify-center text-4xl" style={{ background: "var(--gold-pale)", border: "4px solid var(--gold)", color: "var(--gold-dark)" }}>
+                👤
+              </div>
+            )}
+            <label className="cursor-pointer px-4 py-2 rounded-lg text-sm" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+              {uploading ? "جاري الرفع..." : form.photo ? "تغيير الصورة" : "رفع صورة"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+            </label>
+          </div>
           {field("الاسم *", "name")}
           {field("تاريخ الميلاد", "birthDate", "date")}
 
@@ -214,33 +256,37 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
           {field("نوع الإعاقة", "disabilityType")}
           {field("سبب الإعاقة", "disabilityCause")}
 
-          <div>
-            <label className="block text-sm font-medium mb-1">الفصل</label>
-            <select
-              value={form.classId}
-              onChange={(e) => setForm({ ...form, classId: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="">اختر الفصل</option>
-              {classes.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+          {userRole !== "SERVANT" && (
+            <div>
+              <label className="block text-sm font-medium mb-1">الفصل</label>
+              <select
+                value={form.classId}
+                onChange={(e) => setForm({ ...form, classId: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+              >
+                <option value="">اختر الفصل</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium mb-1">الخادم المسؤول</label>
-            <select
-              value={form.servantId}
-              onChange={(e) => setForm({ ...form, servantId: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2"
-            >
-              <option value="">اختر الخادم</option>
-              {servants.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-          </div>
+          {userRole !== "SERVANT" && (
+            <div>
+              <label className="block text-sm font-medium mb-1">الخادم المسؤول</label>
+              <select
+                value={form.servantId}
+                onChange={(e) => setForm({ ...form, servantId: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+              >
+                <option value="">اختر الخادم</option>
+                {servants.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {textarea("ملاحظات عامة", "notes", 3)}
         </div>
@@ -271,14 +317,14 @@ export default function PersonForm({ person }: { person?: Partial<PersonData> })
         <button
           type="submit"
           disabled={loading || !form.name}
-          className="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 disabled:opacity-50"
+          className="btn-gold disabled:opacity-50"
         >
           {loading ? "جاري الحفظ..." : person?.id ? "حفظ التعديلات" : "إضافة"}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
+          className="btn-navy"
         >
           إلغاء
         </button>

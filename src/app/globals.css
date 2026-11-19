@@ -1,12 +1,97 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f9fafb;
-  --foreground: #171717;
+@layer base {
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243356;
+    --navy-dark: #111b30;
+    --gold: #c9a84c;
+    --gold-light: #e0c56e;
+    --gold-dark: #a88a2e;
+    --gold-pale: #f5ecd0;
+    --cream: #faf6eb;
+    --cream-dark: #f0e8d4;
+    --burgundy: #7a2d3c;
+    --background: var(--cream);
+    --foreground: #2d2518;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+.font-amiri {
+  font-family: "Amiri", serif;
+}
+
+.church-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(26, 39, 68, 0.08);
+  border: 1px solid var(--gold-pale);
+}
+
+.church-card:hover {
+  box-shadow: 0 4px 20px rgba(201, 168, 76, 0.15);
+  border-color: var(--gold-light);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 2px 8px rgba(201, 168, 76, 0.4);
+}
+
+.btn-navy {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+  color: var(--gold-light);
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-navy:hover {
+  background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy) 100%);
+}
+
+.gold-border-b {
+  border-bottom: 2px solid var(--gold);
+}
+
+.cross-ornament::before {
+  content: "☦";
+  margin-left: 8px;
+  color: var(--gold);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.2) !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 4px;
 }

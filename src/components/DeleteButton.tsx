@@ -6,7 +6,7 @@ export default function DeleteButton({ personId }: { personId: string }) {
   const router = useRouter();
 
   const handleDelete = async () => {
-    if (!confirm("هل أنت متأكد من حذف هذه الحالة؟")) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المخدوم؟")) return;
 
     const res = await fetch(`/api/persons/${personId}`, { method: "DELETE" });
     if (res.ok) {
@@ -18,7 +18,8 @@ export default function DeleteButton({ personId }: { personId: string }) {
   return (
     <button
       onClick={handleDelete}
-      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm"
+      className="px-4 py-2 rounded-lg text-sm hover:opacity-80 transition"
+      style={{ background: "var(--burgundy)", color: "white" }}
     >
       حذف
     </button>

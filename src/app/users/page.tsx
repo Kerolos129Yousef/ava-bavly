@@ -19,7 +19,9 @@ export default async function UsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">إدارة المستخدمين</h1>
+      <h1 className="text-2xl font-bold mb-6 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> إدارة المستخدمين
+      </h1>
       <UsersList users={users} servants={servants} classes={classes} />
     </div>
   );

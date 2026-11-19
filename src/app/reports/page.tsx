@@ -73,36 +73,38 @@ export default async function ReportsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">التقارير والإحصائيات</h1>
+      <h1 className="text-2xl font-bold mb-6 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> التقارير والإحصائيات
+      </h1>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-xl shadow p-4 text-center">
-          <p className="text-3xl font-bold text-blue-700">{totalPersons}</p>
-          <p className="text-sm text-gray-600">إجمالي الحالات</p>
+        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+          <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>{totalPersons}</p>
+          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>إجمالي المخدومين</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-4 text-center">
-          <p className="text-3xl font-bold text-purple-700">
+        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+          <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
             {classes.length}
           </p>
-          <p className="text-sm text-gray-600">عدد الفصول</p>
+          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>عدد الفصول</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-4 text-center">
-          <p className="text-3xl font-bold text-orange-700">
+        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+          <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
             {totalBehaviorNotes}
           </p>
-          <p className="text-sm text-gray-600">ملاحظات سلوكية</p>
+          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>ملاحظات سلوكية</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-4 text-center">
-          <p className="text-3xl font-bold text-red-600">{withoutClass}</p>
-          <p className="text-sm text-gray-600">بدون فصل</p>
+        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+          <p className="text-3xl font-bold" style={{ color: "var(--burgundy)" }}>{withoutClass}</p>
+          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>بدون فصل</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Class Distribution */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">توزيع الفصول</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>توزيع الفصول</h2>
           <div className="space-y-3">
             {classes.map((cls) => {
               const pct =
@@ -130,8 +132,8 @@ export default async function ReportsPage() {
         </div>
 
         {/* Gender Distribution */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">توزيع النوع</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>توزيع النوع</h2>
           <div className="flex justify-center gap-8">
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
@@ -163,8 +165,8 @@ export default async function ReportsPage() {
         </div>
 
         {/* Disability Types */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">أنواع الإعاقة</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>أنواع الإعاقة</h2>
           {disabilityTypes.length === 0 ? (
             <p className="text-gray-500 text-sm">لا توجد بيانات</p>
           ) : (
@@ -185,8 +187,8 @@ export default async function ReportsPage() {
         </div>
 
         {/* Age Groups */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">الفئات العمرية</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>الفئات العمرية</h2>
           <div className="space-y-2">
             {Object.entries(ageGroups).map(([group, count]) => (
               <div
@@ -206,19 +208,19 @@ export default async function ReportsPage() {
       </div>
 
       {/* Recent Behavior Notes */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-bold mb-4">آخر الملاحظات السلوكية</h2>
+      <div className="church-card p-6">
+        <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>آخر الملاحظات السلوكية</h2>
         {recentBehavior.length === 0 ? (
-          <p className="text-gray-500 text-sm">لا توجد ملاحظات</p>
+          <p className="text-sm" style={{ color: "var(--navy-light)" }}>لا توجد ملاحظات</p>
         ) : (
           <div className="space-y-3">
             {recentBehavior.map((note) => (
-              <div key={note.id} className="border rounded-lg p-3">
+              <div key={note.id} className="rounded-lg p-3" style={{ border: "1px solid var(--gold-pale)", background: "var(--cream)" }}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium text-sm text-blue-700">
+                  <span className="font-medium text-sm" style={{ color: "var(--navy)" }}>
                     {note.person.name}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs" style={{ color: "var(--gold-dark)" }}>
                     {new Date(note.date).toLocaleDateString("ar-EG")}
                   </span>
                 </div>

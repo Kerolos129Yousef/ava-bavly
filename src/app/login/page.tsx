@@ -41,62 +41,85 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-2">
-          {isSetup ? "إعداد النظام" : "تسجيل الدخول"}
-        </h1>
-        <p className="text-gray-500 text-center mb-6 text-sm">
-          {isSetup
-            ? "أنشئ حساب أمين الخدمة الأول"
-            : "أفا بافلي - خدمة ذوي القدرات الخاصة"}
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: "linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%)" }}>
+      <div className="w-full max-w-md">
+        {/* Church Cross Ornament */}
+        <div className="text-center mb-6">
+          <span className="text-6xl" style={{ color: "var(--gold)" }}>☦</span>
+          <h1 className="text-3xl font-bold font-amiri mt-2" style={{ color: "var(--gold-light)" }}>
+            أفا بافلي
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "var(--cream-dark)" }}>
+            خدمة ذوي القدرات الخاصة بالكنيسة
+          </p>
+          <div className="mt-3 mx-auto w-32 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
+        </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-700 p-3 rounded-lg mb-4 text-sm">{error}</div>
-        )}
+        {/* Login Card */}
+        <div className="rounded-2xl p-8 shadow-2xl" style={{ background: "white", border: "1px solid var(--gold-pale)" }}>
+          <h2 className="text-xl font-bold text-center mb-1 font-amiri" style={{ color: "var(--navy)" }}>
+            {isSetup ? "إعداد النظام" : "تسجيل الدخول"}
+          </h2>
+          <p className="text-center mb-6 text-sm" style={{ color: "var(--navy-light)" }}>
+            {isSetup ? "أنشئ حساب أمين الخدمة الأول" : "سجّل دخولك للمتابعة"}
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isSetup && (
+          {error && (
+            <div className="p-3 rounded-lg mb-4 text-sm text-center" style={{ background: "#fef2f2", color: "var(--burgundy)", border: "1px solid #fecaca" }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSetup && (
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>الاسم</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-lg px-3 py-2.5 transition-all"
+                  style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                  required
+                />
+              </div>
+            )}
             <div>
-              <label className="block text-sm font-medium mb-1">الاسم</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>اسم المستخدم</label>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border rounded-lg px-3 py-2"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-lg px-3 py-2.5 transition-all"
+                style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
                 required
               />
             </div>
-          )}
-          <div>
-            <label className="block text-sm font-medium mb-1">اسم المستخدم</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">كلمة المرور</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-800 disabled:opacity-50"
-          >
-            {loading ? "جاري..." : isSetup ? "إنشاء الحساب" : "دخول"}
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>كلمة المرور</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg px-3 py-2.5 transition-all"
+                style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg font-bold transition-all disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)", color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
+            >
+              {loading ? "جاري..." : isSetup ? "إنشاء الحساب" : "دخول"}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-xs mt-4" style={{ color: "rgba(201, 168, 76, 0.5)" }}>
+          بركة القديس أنبا بافلي تكون معنا
+        </p>
       </div>
     </div>
   );

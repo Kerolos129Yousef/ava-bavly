@@ -43,6 +43,7 @@ export async function PUT(
     where: { id },
     data: {
       name: data.name,
+      photo: data.photo || null,
       birthDate: data.birthDate ? new Date(data.birthDate) : null,
       gender: data.gender || null,
       phone: data.phone || null,

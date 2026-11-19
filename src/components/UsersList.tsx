@@ -18,12 +18,6 @@ const roleLabels: Record<string, string> = {
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 
-const roleBadgeColor: Record<string, string> = {
-  SERVANT: "bg-blue-100 text-blue-800",
-  CLASS_ADMIN: "bg-green-100 text-green-800",
-  MINISTRY_ADMIN: "bg-purple-100 text-purple-800",
-};
-
 export default function UsersList({
   users,
   servants,
@@ -72,14 +66,14 @@ export default function UsersList({
     <div>
       <button
         onClick={() => setShowForm(!showForm)}
-        className="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-800 mb-4"
+        className={showForm ? "btn-navy mb-4" : "btn-gold mb-4"}
       >
         {showForm ? "إلغاء" : "+ إضافة مستخدم"}
       </button>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 mb-6 space-y-4">
-          {error && <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm">{error}</div>}
+        <form onSubmit={handleSubmit} className="church-card p-6 mb-6 space-y-4" style={{ borderTop: "3px solid var(--gold)" }}>
+          {error && <div className="p-3 rounded-lg text-sm" style={{ background: "rgba(122, 45, 60, 0.1)", color: "var(--burgundy)" }}>{error}</div>}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -161,29 +155,29 @@ export default function UsersList({
           <button
             type="submit"
             disabled={loading}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+            className="btn-gold disabled:opacity-50"
           >
             {loading ? "جاري الحفظ..." : "إضافة"}
           </button>
         </form>
       )}
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="church-card overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead style={{ background: "var(--gold-pale)" }}>
             <tr>
-              <th className="px-4 py-3 text-right text-sm font-medium">الاسم</th>
-              <th className="px-4 py-3 text-right text-sm font-medium">المستخدم</th>
-              <th className="px-4 py-3 text-right text-sm font-medium">الدور</th>
+              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>الاسم</th>
+              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>المستخدم</th>
+              <th className="px-4 py-3 text-right text-sm font-medium" style={{ color: "var(--navy)" }}>الدور</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y" style={{ borderColor: "var(--gold-pale)" }}>
             {users.map((u) => (
-              <tr key={u.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{u.name}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{u.username}</td>
+              <tr key={u.id} className="hover:opacity-90" style={{ transition: "background 0.15s" }}>
+                <td className="px-4 py-3 font-medium" style={{ color: "var(--navy)" }}>{u.name}</td>
+                <td className="px-4 py-3 text-sm" style={{ color: "var(--navy-light)" }}>{u.username}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleBadgeColor[u.role] || ""}`}>
+                  <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
                     {roleLabels[u.role] || u.role}
                   </span>
                 </td>
@@ -191,7 +185,7 @@ export default function UsersList({
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-gray-500">لا يوجد مستخدمين</td>
+                <td colSpan={3} className="px-4 py-8 text-center" style={{ color: "var(--navy-light)" }}>لا يوجد مستخدمين</td>
               </tr>
             )}
           </tbody>

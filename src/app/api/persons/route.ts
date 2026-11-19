@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
   const person = await prisma.person.create({
     data: {
       name: data.name,
+      photo: data.photo || null,
       birthDate: data.birthDate ? new Date(data.birthDate) : null,
       gender: data.gender || null,
       phone: data.phone || null,

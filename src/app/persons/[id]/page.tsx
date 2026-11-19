@@ -39,14 +39,6 @@ export default async function PersonDetailPage({
     "5": "ممتاز",
   };
 
-  const skillColor: Record<string, string> = {
-    "1": "bg-red-500",
-    "2": "bg-orange-500",
-    "3": "bg-yellow-500",
-    "4": "bg-green-500",
-    "5": "bg-emerald-500",
-  };
-
   const info = [
     ["تاريخ الميلاد", person.birthDate ? new Date(person.birthDate).toLocaleDateString("ar-EG") : null],
     ["النوع", person.gender === "male" ? "ذكر" : person.gender === "female" ? "أنثى" : null],
@@ -73,70 +65,98 @@ export default async function PersonDetailPage({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Basic Info */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">{person.name}</h1>
-          <div className="flex gap-2">
-            {canEdit && (
-              <Link
-                href={`/persons/${person.id}/edit`}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm"
-              >
-                تعديل
-              </Link>
-            )}
-            {canDelete && <DeleteButton personId={person.id} />}
+      {/* Photo + Name Header */}
+      <div className="church-card p-8 flex flex-col items-center text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+        {person.photo ? (
+          <img
+            src={person.photo}
+            alt={person.name}
+            className="w-36 h-36 rounded-full object-cover shadow-lg"
+            style={{ border: "4px solid var(--gold)" }}
+          />
+        ) : (
+          <div
+            className="w-36 h-36 rounded-full flex items-center justify-center text-5xl shadow-lg"
+            style={{ background: "var(--gold-pale)", border: "4px solid var(--gold)", color: "var(--gold-dark)" }}
+          >
+            👤
           </div>
+        )}
+        <h1 className="text-2xl font-bold font-amiri mt-4" style={{ color: "var(--navy)" }}>{person.name}</h1>
+        {person.class && (
+          <span className="text-sm mt-1 px-3 py-1 rounded-full" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+            {person.class.name}
+          </span>
+        )}
+        {person.servant && (
+          <span className="text-xs mt-2" style={{ color: "var(--navy-light)" }}>
+            ☦ الخادم: {person.servant.name}
+          </span>
+        )}
+        <div className="flex gap-2 mt-4">
+          {canEdit && (
+            <Link href={`/persons/${person.id}/edit`} className="btn-gold text-sm">
+              تعديل
+            </Link>
+          )}
+          {canDelete && <DeleteButton personId={person.id} />}
         </div>
+      </div>
 
+      {/* Basic Info */}
+      <div className="church-card p-6">
+        <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>
+          <span style={{ color: "var(--gold)" }}>☦</span> البيانات الأساسية
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {info.map(
             ([label, value]) =>
               value && (
                 <div key={label as string}>
-                  <p className="text-sm text-gray-500">{label as string}</p>
-                  <p className="font-medium">{value as string}</p>
+                  <p className="text-sm" style={{ color: "var(--gold-dark)" }}>{label as string}</p>
+                  <p className="font-medium" style={{ color: "var(--navy)" }}>{value as string}</p>
                 </div>
               )
           )}
         </div>
 
         {person.notes && (
-          <div className="mt-4 border-t pt-4">
-            <p className="text-sm text-gray-500">ملاحظات</p>
-            <p>{person.notes}</p>
+          <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--gold-pale)" }}>
+            <p className="text-sm" style={{ color: "var(--gold-dark)" }}>ملاحظات</p>
+            <p style={{ color: "var(--navy)" }}>{person.notes}</p>
           </div>
         )}
       </div>
 
       {/* Medical Info */}
       {hasMedical && (
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">المعلومات الطبية</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>
+            <span style={{ color: "var(--gold)" }}>☦</span> المعلومات الطبية
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {person.medications && (
               <div>
-                <p className="text-sm text-gray-500">الأدوية</p>
-                <p className="whitespace-pre-wrap">{person.medications}</p>
+                <p className="text-sm" style={{ color: "var(--gold-dark)" }}>الأدوية</p>
+                <p className="whitespace-pre-wrap" style={{ color: "var(--navy)" }}>{person.medications}</p>
               </div>
             )}
             {person.allergies && (
               <div>
-                <p className="text-sm text-gray-500">الحساسية</p>
-                <p>{person.allergies}</p>
+                <p className="text-sm" style={{ color: "var(--gold-dark)" }}>الحساسية</p>
+                <p style={{ color: "var(--navy)" }}>{person.allergies}</p>
               </div>
             )}
             {person.medicalHistory && (
               <div className="md:col-span-2">
-                <p className="text-sm text-gray-500">التاريخ الطبي</p>
-                <p className="whitespace-pre-wrap">{person.medicalHistory}</p>
+                <p className="text-sm" style={{ color: "var(--gold-dark)" }}>التاريخ الطبي</p>
+                <p className="whitespace-pre-wrap" style={{ color: "var(--navy)" }}>{person.medicalHistory}</p>
               </div>
             )}
             {person.doctorName && (
               <div>
-                <p className="text-sm text-gray-500">الطبيب المتابع</p>
-                <p>{person.doctorName} {person.doctorPhone && `- ${person.doctorPhone}`}</p>
+                <p className="text-sm" style={{ color: "var(--gold-dark)" }}>الطبيب المتابع</p>
+                <p style={{ color: "var(--navy)" }}>{person.doctorName} {person.doctorPhone && `- ${person.doctorPhone}`}</p>
               </div>
             )}
           </div>
@@ -145,8 +165,10 @@ export default async function PersonDetailPage({
 
       {/* Skills Assessment */}
       {hasSkills && (
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-lg font-bold mb-4">تقييم المهارات</h2>
+        <div className="church-card p-6">
+          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>
+            <span style={{ color: "var(--gold)" }}>☦</span> تقييم المهارات
+          </h2>
           <div className="space-y-3">
             {skills.map(([label, value]) => {
               if (!value) return null;
@@ -155,13 +177,13 @@ export default async function PersonDetailPage({
               return (
                 <div key={label as string}>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>{label as string}</span>
-                    <span className="font-medium">{skillLabels[v] || "متوسط"}</span>
+                    <span style={{ color: "var(--navy)" }}>{label as string}</span>
+                    <span className="font-medium" style={{ color: "var(--gold-dark)" }}>{skillLabels[v] || "متوسط"}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full rounded-full h-3" style={{ background: "var(--cream-dark)" }}>
                     <div
-                      className={`${skillColor[v] || "bg-gray-500"} h-3 rounded-full transition-all`}
-                      style={{ width: `${pct}%` }}
+                      className="h-3 rounded-full transition-all"
+                      style={{ width: `${pct}%`, background: "linear-gradient(90deg, var(--gold-dark), var(--gold-light))" }}
                     />
                   </div>
                 </div>
@@ -169,9 +191,9 @@ export default async function PersonDetailPage({
             })}
           </div>
           {person.dailyLivingNote && (
-            <div className="mt-4 border-t pt-4">
-              <p className="text-sm text-gray-500">ملاحظات الحياة اليومية</p>
-              <p>{person.dailyLivingNote}</p>
+            <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--gold-pale)" }}>
+              <p className="text-sm" style={{ color: "var(--gold-dark)" }}>ملاحظات الحياة اليومية</p>
+              <p style={{ color: "var(--navy)" }}>{person.dailyLivingNote}</p>
             </div>
           )}
         </div>

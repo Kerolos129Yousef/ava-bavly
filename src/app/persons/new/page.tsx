@@ -7,5 +7,5 @@ export default async function NewPersonPage() {
   if (!session) redirect("/login");
   if (session.role === "SERVANT") redirect("/persons");
 
-  return <PersonForm />;
+  return <PersonForm userRole={session.role} />;
 }

@@ -47,10 +47,12 @@ export default function BehaviorLog({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
-      <h2 className="text-lg font-bold mb-4">سجل السلوك</h2>
+    <div className="church-card p-6">
+      <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> سجل السلوك
+      </h2>
 
-      <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+      <div className="rounded-lg p-4 mb-4" style={{ border: "1px solid var(--gold-pale)", background: "var(--cream)" }}>
         <div className="flex gap-3 mb-3">
           <input
             type="date"
@@ -69,30 +71,32 @@ export default function BehaviorLog({
         <button
           onClick={addNote}
           disabled={loading || !newNote.trim()}
-          className="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-800 disabled:opacity-50"
+          className="btn-gold disabled:opacity-50"
         >
           {loading ? "جاري الحفظ..." : "+ إضافة ملاحظة"}
         </button>
       </div>
 
       {notes.length === 0 ? (
-        <p className="text-gray-500 text-sm">لا توجد ملاحظات سلوكية بعد</p>
+        <p className="text-sm" style={{ color: "var(--navy-light)" }}>لا توجد ملاحظات سلوكية بعد</p>
       ) : (
         <div className="space-y-3">
           {notes.map((note) => (
             <div
               key={note.id}
-              className="border rounded-lg p-3 flex justify-between items-start"
+              className="rounded-lg p-3 flex justify-between items-start"
+              style={{ border: "1px solid var(--gold-pale)" }}
             >
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm mb-1" style={{ color: "var(--gold-dark)" }}>
                   {new Date(note.date).toLocaleDateString("ar-EG")}
                 </p>
                 <p className="text-sm">{note.note}</p>
               </div>
               <button
                 onClick={() => deleteNote(note.id)}
-                className="text-red-500 hover:text-red-700 text-xs mr-2 shrink-0"
+                className="text-xs mr-2 shrink-0 hover:opacity-70"
+                style={{ color: "var(--burgundy)" }}
               >
                 حذف
               </button>

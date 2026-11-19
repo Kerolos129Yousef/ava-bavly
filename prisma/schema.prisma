@@ -1,10 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -23,6 +24,7 @@ model User {
 model Person {
   id              String   @id @default(cuid())
   name            String
+  photo           String?
   birthDate       DateTime?
   gender          String?
   phone           String?
@@ -61,12 +63,17 @@ model Person {
 }
 
 model Servant {
-  id      String   @id @default(cuid())
-  name    String
-  phone   String?
-  email   String?
-  persons Person[]
-  users   User[]
+  id            String   @id @default(cuid())
+  name          String
+  phone         String?
+  email         String?
+  photo         String?
+  address       String?
+  education     String?
+  maritalStatus String?
+  job           String?
+  persons       Person[]
+  users         User[]
 }
 
 model Class {

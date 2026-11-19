@@ -24,58 +24,62 @@ export default async function Home() {
     }),
   ]);
 
-  const classColors: Record<string, string> = {
-    mild: "bg-green-100 border-green-400 text-green-800",
-    moderate: "bg-yellow-100 border-yellow-400 text-yellow-800",
-    severe: "bg-red-100 border-red-400 text-red-800",
-    children: "bg-blue-100 border-blue-400 text-blue-800",
+  const classIcons: Record<string, string> = {
+    mild: "🕊",
+    moderate: "✝",
+    severe: "🙏",
+    children: "👶",
   };
 
   return (
     <div>
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">خدمة أفا بافلي</h1>
-        <p className="text-gray-600">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <p className="text-4xl mb-3" style={{ color: "var(--gold)" }}>☦</p>
+        <h1 className="text-3xl font-bold font-amiri" style={{ color: "var(--navy)" }}>
+          خدمة أفا بافلي
+        </h1>
+        <p className="mt-2" style={{ color: "var(--navy-light)" }}>
           {session.role === "SERVANT"
-            ? `أهلا ${session.name} - مخدوميك`
+            ? `أهلاً ${session.name} — مخدوميك`
             : "خدمة ذوي القدرات الخاصة بالكنيسة"}
         </p>
+        <div className="mt-3 mx-auto w-24 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
       </div>
 
+      {/* Class Cards */}
       {session.role !== "SERVANT" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {classes.map((cls) => (
             <div
               key={cls.id}
-              className={`border-2 rounded-xl p-6 text-center ${classColors[cls.type] || "bg-gray-100 border-gray-400"}`}
+              className="church-card p-6 text-center transition-all"
+              style={{ borderTop: "3px solid var(--gold)" }}
             >
-              <h3 className="text-lg font-bold mb-1">{cls.name}</h3>
-              <p className="text-3xl font-bold">{cls._count.persons}</p>
-              <p className="text-sm mt-1">حالة</p>
+              <span className="text-2xl">{classIcons[cls.type] || "📖"}</span>
+              <h3 className="text-lg font-bold mt-2" style={{ color: "var(--navy)" }}>{cls.name}</h3>
+              <p className="text-3xl font-bold mt-1" style={{ color: "var(--gold-dark)" }}>{cls._count.persons}</p>
+              <p className="text-sm mt-1" style={{ color: "var(--navy-light)" }}>مخدوم</p>
             </div>
           ))}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow p-6 text-center">
-        <p className="text-gray-600 mb-2">
-          {session.role === "SERVANT" ? "عدد مخدوميك" : "إجمالي الحالات المسجلة"}
+      {/* Total + Actions */}
+      <div className="church-card p-8 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+        <p className="text-sm mb-2" style={{ color: "var(--navy-light)" }}>
+          {session.role === "SERVANT" ? "عدد مخدوميك" : "إجمالي المخدومين"}
         </p>
-        <p className="text-4xl font-bold text-blue-700">{totalPersons}</p>
-        <div className="mt-4 flex justify-center gap-4">
+        <p className="text-5xl font-bold" style={{ color: "var(--navy)" }}>{totalPersons}</p>
+        <div className="mt-2 mx-auto w-16 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
+        <div className="mt-6 flex justify-center gap-4">
           {session.role !== "SERVANT" && (
-            <Link
-              href="/persons/new"
-              className="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800"
-            >
-              + إضافة حالة جديدة
+            <Link href="/persons/new" className="btn-gold">
+              + إضافة مخدوم جديد
             </Link>
           )}
-          <Link
-            href="/persons"
-            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
-          >
-            عرض الحالات
+          <Link href="/persons" className="btn-navy">
+            عرض المخدومين
           </Link>
         </div>
       </div>
