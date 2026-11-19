@@ -1,12 +1,15 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-
+import PersonsTable from "@/components/PersonsTable";
 
 export default async function PersonsPage() {
-  const persons = await prisma.person.findMany({
-    include: { class: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const [persons, classes] = await Promise.all([
+    prisma.person.findMany({
+      include: { class: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.class.findMany({ orderBy: { name: "asc" } }),
+  ]);
 
   return (
     <div>
@@ -28,43 +31,16 @@ export default async function PersonsPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-          <table className="w-full text-right">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-3 font-semibold">الاسم</th>
-                <th className="px-4 py-3 font-semibold">الفصل</th>
-                <th className="px-4 py-3 font-semibold">نوع الإعاقة</th>
-                <th className="px-4 py-3 font-semibold">ولي الأمر</th>
-                <th className="px-4 py-3 font-semibold">إجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {persons.map((p) => (
-                <tr key={p.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3">{p.class?.name || "—"}</td>
-                  <td className="px-4 py-3">{p.disabilityType || "—"}</td>
-                  <td className="px-4 py-3">{p.guardianName || "—"}</td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/persons/${p.id}`}
-                      className="text-blue-600 hover:underline ml-3"
-                    >
-                      عرض
-                    </Link>
-                    <Link
-                      href={`/persons/${p.id}/edit`}
-                      className="text-green-600 hover:underline"
-                    >
-                      تعديل
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <PersonsTable
+          persons={persons.map((p) => ({
+            id: p.id,
+            name: p.name,
+            disabilityType: p.disabilityType,
+            guardianName: p.guardianName,
+            class: p.class ? { id: p.class.id, name: p.class.name } : null,
+          }))}
+          classes={classes.map((c) => ({ id: c.id, name: c.name }))}
+        />
       )}
     </div>
   );
