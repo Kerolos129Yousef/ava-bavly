@@ -12,6 +12,7 @@ interface SessionUser {
 const roleLabels: Record<string, string> = {
   SERVANT: "خادم",
   CLASS_ADMIN: "أمين فصل",
+  CLASS_ASSISTANT: "مساعد أمين الفصل",
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 

@@ -11,7 +11,7 @@ export async function GET() {
 
   let personWhere = {};
   let classWhere = {};
-  if (session.role === "CLASS_ADMIN") {
+  if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     personWhere = { classId: session.classId };
     classWhere = { id: session.classId };
   }
@@ -42,7 +42,7 @@ export async function GET() {
     prisma.behaviorNote.findMany({
       take: 10,
       orderBy: { date: "desc" },
-      where: session.role === "CLASS_ADMIN" ? { person: { classId: session.classId } } : {},
+      where: (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") ? { person: { classId: session.classId } } : {},
       include: { person: { select: { name: true } } },
     }),
     prisma.person.count({ where: { ...personWhere, classId: null } }),

@@ -2,7 +2,6 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import AssistantPicker from "@/components/AssistantPicker";
 
 const classIcons: Record<string, string> = {
   mild: "🕊",
@@ -22,7 +21,6 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     where: { id },
     include: {
       users: { select: { id: true, name: true, role: true } },
-      assistant: { select: { id: true, name: true, photo: true } },
       persons: {
         select: { id: true, name: true, photo: true },
         orderBy: { name: "asc" },
@@ -32,21 +30,14 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
 
   if (!cls) notFound();
 
-  // Get servants linked to this class's persons
   const servants = await prisma.servant.findMany({
     where: { persons: { some: { classId: id } } },
     select: { id: true, name: true, photo: true, _count: { select: { persons: true } } },
     orderBy: { name: "asc" },
   });
 
-  // All servants for picker dropdown
-  const allServants = await prisma.servant.findMany({
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  });
-
   const classAdmin = cls.users.find((u) => u.role === "CLASS_ADMIN");
-  const isAdmin = session.role === "MINISTRY_ADMIN";
+  const classAssistant = cls.users.find((u) => u.role === "CLASS_ASSISTANT");
 
   return (
     <div>
@@ -69,23 +60,17 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
               </div>
             </div>
           )}
-          {isAdmin ? (
-            <AssistantPicker classId={id} currentAssistantId={cls.assistantId} servants={allServants} />
-          ) : cls.assistant ? (
+          {classAssistant && (
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: "var(--gold-pale)" }}>
-              {cls.assistant.photo ? (
-                <img src={cls.assistant.photo} alt={cls.assistant.name} className="w-8 h-8 rounded-full object-cover" style={{ border: "2px solid var(--gold)" }} />
-              ) : (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "var(--navy)", color: "white" }}>م</div>
-              )}
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "var(--navy)", color: "white" }}>م</div>
               <div className="text-start">
                 <p className="text-xs" style={{ color: "var(--gold-dark)" }}>المساعد</p>
-                <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>{cls.assistant.name}</p>
+                <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>{classAssistant.name}</p>
               </div>
             </div>
-          ) : null}
+          )}
         </div>
-        {!classAdmin && !cls.assistant && !isAdmin && (
+        {!classAdmin && !classAssistant && (
           <p className="mt-3 text-xs" style={{ color: "var(--navy-light)" }}>لم يتم تعيين أمين فصل أو مساعد</p>
         )}
       </div>

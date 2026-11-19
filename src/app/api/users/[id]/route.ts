@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     name: name.trim(),
     role,
     servantId: role === "SERVANT" ? (servantId || null) : null,
-    classId: role === "CLASS_ADMIN" ? (classId || null) : null,
+    classId: (role === "CLASS_ADMIN" || role === "CLASS_ASSISTANT") ? (classId || null) : null,
   };
 
   if (typeof suspended === "boolean") {

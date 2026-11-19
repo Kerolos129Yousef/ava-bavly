@@ -9,7 +9,7 @@ export async function GET() {
   let where = {};
   if (session.role === "SERVANT") {
     where = { servantId: session.servantId };
-  } else if (session.role === "CLASS_ADMIN") {
+  } else if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     where = { classId: session.classId };
   }
 
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   const data = await req.json();
 
-  if (session.role === "CLASS_ADMIN" && data.classId !== session.classId) {
+  if ((session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") && data.classId !== session.classId) {
     return NextResponse.json({ error: "غير مسموح بإضافة حالات لفصل تاني" }, { status: 403 });
   }
 

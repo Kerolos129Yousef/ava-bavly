@@ -2,7 +2,7 @@ import { prisma } from "./db";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
-export type Role = "SERVANT" | "CLASS_ADMIN" | "MINISTRY_ADMIN";
+export type Role = "SERVANT" | "CLASS_ADMIN" | "CLASS_ASSISTANT" | "MINISTRY_ADMIN";
 
 export interface SessionUser {
   id: string;
@@ -60,13 +60,13 @@ export async function destroySession() {
 
 export function canAccessPerson(user: SessionUser, person: { servantId?: string | null; classId?: string | null }) {
   if (user.role === "MINISTRY_ADMIN") return true;
-  if (user.role === "CLASS_ADMIN") return person.classId === user.classId;
+  if (user.role === "CLASS_ADMIN" || user.role === "CLASS_ASSISTANT") return person.classId === user.classId;
   if (user.role === "SERVANT") return person.servantId === user.servantId;
   return false;
 }
 
 export function canAccessClass(user: SessionUser, classId: string) {
   if (user.role === "MINISTRY_ADMIN") return true;
-  if (user.role === "CLASS_ADMIN") return classId === user.classId;
+  if (user.role === "CLASS_ADMIN" || user.role === "CLASS_ASSISTANT") return classId === user.classId;
   return false;
 }

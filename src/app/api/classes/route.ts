@@ -7,7 +7,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "غير مسموح" }, { status: 401 });
 
   let where = {};
-  if (session.role === "CLASS_ADMIN") {
+  if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     where = { id: session.classId };
   }
 

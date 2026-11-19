@@ -11,7 +11,7 @@ export async function GET() {
   }
 
   let where = {};
-  if (session.role === "CLASS_ADMIN") {
+  if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     where = { persons: { some: { classId: session.classId } } };
   }
 

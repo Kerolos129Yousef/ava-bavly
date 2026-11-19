@@ -18,6 +18,7 @@ interface User {
 const roleLabels: Record<string, string> = {
   SERVANT: "خادم",
   CLASS_ADMIN: "أمين فصل",
+  CLASS_ASSISTANT: "مساعد أمين الفصل",
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 
@@ -154,6 +155,7 @@ export default function UsersList({
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border rounded-lg px-3 py-2">
                 <option value="SERVANT">خادم</option>
                 <option value="CLASS_ADMIN">أمين فصل</option>
+                <option value="CLASS_ASSISTANT">مساعد أمين الفصل</option>
                 <option value="MINISTRY_ADMIN">أمين الخدمة</option>
               </select>
             </div>
@@ -166,7 +168,7 @@ export default function UsersList({
                 </select>
               </div>
             )}
-            {form.role === "CLASS_ADMIN" && (
+            {(form.role === "CLASS_ADMIN" || form.role === "CLASS_ASSISTANT") && (
               <div>
                 <label className="block text-sm font-medium mb-1">ربط بفصل</label>
                 <select value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value })} className="w-full border rounded-lg px-3 py-2">
@@ -198,6 +200,7 @@ export default function UsersList({
                     <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm">
                       <option value="SERVANT">خادم</option>
                       <option value="CLASS_ADMIN">أمين فصل</option>
+                      <option value="CLASS_ASSISTANT">مساعد أمين الفصل</option>
                       <option value="MINISTRY_ADMIN">أمين الخدمة</option>
                     </select>
                   </div>
@@ -214,7 +217,7 @@ export default function UsersList({
                       </select>
                     </div>
                   )}
-                  {editForm.role === "CLASS_ADMIN" && (
+                  {(editForm.role === "CLASS_ADMIN" || editForm.role === "CLASS_ASSISTANT") && (
                     <div>
                       <label className="block text-xs font-medium mb-1">ربط بفصل</label>
                       <select value={editForm.classId} onChange={(e) => setEditForm({ ...editForm, classId: e.target.value })} className="w-full border rounded-lg px-3 py-2 text-sm">

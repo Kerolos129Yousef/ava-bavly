@@ -85,7 +85,7 @@ export async function DELETE(
   const existing = await prisma.person.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (session.role === "CLASS_ADMIN" && existing.classId !== session.classId) {
+  if ((session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") && existing.classId !== session.classId) {
     return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
   }
 

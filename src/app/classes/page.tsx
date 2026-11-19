@@ -11,7 +11,7 @@ export default async function ClassesPage() {
   if (session.role === "SERVANT") redirect("/");
 
   let classWhere = {};
-  if (session.role === "CLASS_ADMIN") {
+  if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     classWhere = { id: session.classId };
   }
 

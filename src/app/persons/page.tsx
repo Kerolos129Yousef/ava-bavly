@@ -12,7 +12,7 @@ export default async function PersonsPage() {
   let personWhere = {};
   if (session.role === "SERVANT") {
     personWhere = { servantId: session.servantId };
-  } else if (session.role === "CLASS_ADMIN") {
+  } else if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     personWhere = { classId: session.classId };
   }
 

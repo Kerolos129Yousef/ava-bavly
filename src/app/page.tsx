@@ -11,7 +11,7 @@ export default async function Home() {
   let classWhere = {};
   if (session.role === "SERVANT") {
     personWhere = { servantId: session.servantId };
-  } else if (session.role === "CLASS_ADMIN") {
+  } else if (session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT") {
     personWhere = { classId: session.classId };
     classWhere = { id: session.classId };
   }

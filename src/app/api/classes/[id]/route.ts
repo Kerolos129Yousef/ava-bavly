@@ -8,25 +8,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (session.role !== "MINISTRY_ADMIN") return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
 
   const { id } = await params;
-  const { name, assistantId } = await req.json();
+  const { name } = await req.json();
 
-  const data: Record<string, unknown> = {};
-
-  if (name?.trim()) {
-    data.name = name.trim();
-  }
-
-  if (assistantId !== undefined) {
-    data.assistantId = assistantId || null;
-  }
-
-  if (Object.keys(data).length === 0) {
-    return NextResponse.json({ error: "لا يوجد بيانات للتحديث" }, { status: 400 });
+  if (!name?.trim()) {
+    return NextResponse.json({ error: "اسم الفصل مطلوب" }, { status: 400 });
   }
 
   const updated = await prisma.class.update({
     where: { id },
-    data,
+    data: { name: name.trim() },
   });
 
   return NextResponse.json(updated);
