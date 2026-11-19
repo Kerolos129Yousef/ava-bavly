@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteButton from "@/components/DeleteButton";
+import BehaviorLog from "@/components/BehaviorLog";
 
 
 export default async function PersonDetailPage({
@@ -68,23 +69,14 @@ export default async function PersonDetailPage({
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-lg font-bold mb-4">سجل السلوك</h2>
-        {person.behaviorNotes.length === 0 ? (
-          <p className="text-gray-500">لا توجد ملاحظات سلوكية</p>
-        ) : (
-          <div className="space-y-3">
-            {person.behaviorNotes.map((note) => (
-              <div key={note.id} className="border rounded-lg p-3">
-                <p className="text-sm text-gray-500">
-                  {new Date(note.date).toLocaleDateString("ar-EG")}
-                </p>
-                <p>{note.note}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <BehaviorLog
+        personId={person.id}
+        notes={person.behaviorNotes.map((n) => ({
+          id: n.id,
+          note: n.note,
+          date: n.date.toISOString(),
+        }))}
+      />
     </div>
   );
 }
