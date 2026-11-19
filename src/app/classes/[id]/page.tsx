@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import AssistantPicker from "@/components/AssistantPicker";
 
 const classIcons: Record<string, string> = {
   mild: "🕊",
@@ -21,6 +22,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     where: { id },
     include: {
       users: { select: { id: true, name: true, role: true } },
+      assistant: { select: { id: true, name: true, photo: true } },
       persons: {
         select: { id: true, name: true, photo: true },
         orderBy: { name: "asc" },
@@ -37,7 +39,14 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     orderBy: { name: "asc" },
   });
 
+  // All servants for picker dropdown
+  const allServants = await prisma.servant.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
   const classAdmin = cls.users.find((u) => u.role === "CLASS_ADMIN");
+  const isAdmin = session.role === "MINISTRY_ADMIN";
 
   return (
     <div>
@@ -47,12 +56,38 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
         <h1 className="text-2xl font-bold font-amiri mt-2" style={{ color: "var(--navy)" }}>
           {cls.name}
         </h1>
-        {classAdmin && (
-          <p className="mt-2 text-sm" style={{ color: "var(--navy-light)" }}>
-            أمين الفصل: <span className="font-bold" style={{ color: "var(--navy)" }}>{classAdmin.name}</span>
-          </p>
-        )}
         <div className="mt-3 mx-auto w-24 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
+
+        {/* Admin & Assistant */}
+        <div className="mt-4 flex flex-wrap justify-center gap-4">
+          {classAdmin && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: "var(--gold-pale)" }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "var(--gold)", color: "white" }}>أ</div>
+              <div className="text-start">
+                <p className="text-xs" style={{ color: "var(--gold-dark)" }}>أمين الفصل</p>
+                <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>{classAdmin.name}</p>
+              </div>
+            </div>
+          )}
+          {isAdmin ? (
+            <AssistantPicker classId={id} currentAssistantId={cls.assistantId} servants={allServants} />
+          ) : cls.assistant ? (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ background: "var(--gold-pale)" }}>
+              {cls.assistant.photo ? (
+                <img src={cls.assistant.photo} alt={cls.assistant.name} className="w-8 h-8 rounded-full object-cover" style={{ border: "2px solid var(--gold)" }} />
+              ) : (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "var(--navy)", color: "white" }}>م</div>
+              )}
+              <div className="text-start">
+                <p className="text-xs" style={{ color: "var(--gold-dark)" }}>المساعد</p>
+                <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>{cls.assistant.name}</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+        {!classAdmin && !cls.assistant && !isAdmin && (
+          <p className="mt-3 text-xs" style={{ color: "var(--navy-light)" }}>لم يتم تعيين أمين فصل أو مساعد</p>
+        )}
       </div>
 
       {/* Quick Action Cards */}

@@ -64,25 +64,28 @@ model Person {
 }
 
 model Servant {
-  id            String   @id @default(cuid())
-  name          String
-  phone         String?
-  email         String?
-  photo         String?
-  address       String?
-  education     String?
-  maritalStatus String?
-  job           String?
-  persons       Person[]
-  users         User[]
+  id              String   @id @default(cuid())
+  name            String
+  phone           String?
+  email           String?
+  photo           String?
+  address         String?
+  education       String?
+  maritalStatus   String?
+  job             String?
+  persons         Person[]
+  users           User[]
+  assistantClasses Class[] @relation("ClassAssistant")
 }
 
 model Class {
-  id      String   @id @default(cuid())
-  name    String   @unique
-  type    String
-  persons Person[]
-  users   User[]
+  id          String   @id @default(cuid())
+  name        String   @unique
+  type        String
+  assistantId String?
+  assistant   Servant? @relation("ClassAssistant", fields: [assistantId], references: [id])
+  persons     Person[]
+  users       User[]
 }
 
 model BehaviorNote {
