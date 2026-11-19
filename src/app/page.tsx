@@ -51,16 +51,17 @@ export default async function Home() {
       {session.role !== "SERVANT" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {classes.map((cls) => (
-            <div
+            <Link
               key={cls.id}
-              className="church-card p-6 text-center transition-all"
+              href={`/classes/${cls.id}`}
+              className="church-card p-6 text-center transition-all hover:shadow-lg"
               style={{ borderTop: "3px solid var(--gold)" }}
             >
               <span className="text-2xl">{classIcons[cls.type] || "📖"}</span>
               <h3 className="text-lg font-bold mt-2" style={{ color: "var(--navy)" }}>{cls.name}</h3>
               <p className="text-3xl font-bold mt-1" style={{ color: "var(--gold-dark)" }}>{cls._count.persons}</p>
               <p className="text-sm mt-1" style={{ color: "var(--navy-light)" }}>مخدوم</p>
-            </div>
+            </Link>
           ))}
         </div>
       )}
