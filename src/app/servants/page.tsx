@@ -18,6 +18,7 @@ export default async function ServantsPage() {
     include: {
       persons: { select: { id: true, name: true, photo: true } },
       class: { select: { id: true, name: true } },
+      users: { select: { photo: true }, take: 1 },
       _count: { select: { persons: true } },
     },
     orderBy: { name: "asc" },
@@ -39,7 +40,7 @@ export default async function ServantsPage() {
           name: s.name,
           phone: s.phone,
           email: s.email,
-          photo: s.photo,
+          photo: s.photo || s.users[0]?.photo || null,
           address: s.address,
           education: s.education,
           maritalStatus: s.maritalStatus,
