@@ -148,3 +148,46 @@ html[data-theme="christmas"] .btn-gold {
 html[data-theme="christmas"] .btn-gold:hover {
   background: linear-gradient(135deg, #e02040 0%, #c41e3a 100%) !important;
 }
+
+/* Christmas: remap navy/dark vars to light colors so all text is visible */
+html[data-theme="christmas"] {
+  --foreground: #ffffff !important;
+  --navy: #ffffff !important;
+  --navy-light: rgba(255,255,255,0.7) !important;
+  --navy-dark: rgba(255,255,255,0.9) !important;
+  --burgundy: #ff9999 !important;
+  --gold-dark: #ffd700 !important;
+  --gold-pale: rgba(255, 215, 0, 0.15) !important;
+  --cream-dark: rgba(255, 215, 0, 0.1) !important;
+}
+
+/* Fix elements that use --navy as BACKGROUND (not text) */
+html[data-theme="christmas"] .btn-navy {
+  background: linear-gradient(135deg, #1a3a1a 0%, #0f1f0f 100%) !important;
+  color: #ffe44d !important;
+}
+html[data-theme="christmas"] .btn-navy:hover {
+  background: linear-gradient(135deg, #1a4a1a 0%, #1a3a1a 100%) !important;
+}
+
+/* Avatar initials that use navy background */
+html[data-theme="christmas"] [style*="background: var(--navy)"] {
+  background: #0f1f0f !important;
+  color: #ffd700 !important;
+}
+
+/* Register page background */
+.register-bg {
+  background: linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%);
+}
+html[data-theme="christmas"] .register-bg {
+  background: linear-gradient(180deg, #091409 0%, #0f1f0f 50%, #1a2e1a 100%) !important;
+}
+
+html[data-theme="christmas"] .text-gray-400 { color: rgba(255,255,255,0.5) !important; }
+html[data-theme="christmas"] .text-gray-500 { color: rgba(255,255,255,0.6) !important; }
+html[data-theme="christmas"] .text-gray-600 { color: rgba(255,255,255,0.7) !important; }
+html[data-theme="christmas"] .text-gray-700 { color: rgba(255,255,255,0.8) !important; }
+html[data-theme="christmas"] .text-gray-800 { color: rgba(255,255,255,0.9) !important; }
+html[data-theme="christmas"] .text-gray-900 { color: #ffffff !important; }
+html[data-theme="christmas"] .text-black { color: #ffffff !important; }

@@ -27,7 +27,8 @@ export default function ThemeProvider({ override }: { override?: string }) {
     if (theme.navbarBg) root.style.setProperty("--navbar-bg", theme.navbarBg);
 
     root.setAttribute("data-theme", theme.id);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", c.navy);
+    const metaColor = theme.id === "christmas" ? "#091409" : c.navy;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", metaColor);
   }, [theme]);
 
   return <SeasonalOverlay type={theme.overlay} />;
