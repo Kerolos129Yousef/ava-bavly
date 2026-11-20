@@ -148,7 +148,11 @@ function isInRange(now: Date, range: DateRange): boolean {
   );
 }
 
-export function getActiveTheme(): SeasonalTheme {
+export function getActiveTheme(override?: string): SeasonalTheme {
+  const ov = override || (typeof window !== "undefined" ? (window as any).__THEME_OVERRIDE__ : undefined);
+  if (ov && ov !== "auto" && themes[ov]) {
+    return themes[ov];
+  }
   const now = new Date();
   for (const range of seasonalDates) {
     if (isInRange(now, range)) {

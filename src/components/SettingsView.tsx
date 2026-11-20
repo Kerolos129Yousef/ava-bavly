@@ -17,6 +17,14 @@ const roleLabels: Record<string, string> = {
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 
+const themeOptions = [
+  { id: "auto", name: "تلقائي (حسب الموسم)", emoji: "🔄" },
+  { id: "default", name: "عادي", emoji: "☦" },
+  { id: "christmas", name: "الكريسماس", emoji: "🎄" },
+  { id: "easter", name: "القيامة", emoji: "✝️" },
+  { id: "lent", name: "الصوم الكبير", emoji: "🕊️" },
+];
+
 export default function SettingsView({ session, username: initialUsername, photo: initialPhoto }: { session: SessionUser; username: string; photo: string | null }) {
   const router = useRouter();
   const [changingPassword, setChangingPassword] = useState(false);
@@ -30,6 +38,32 @@ export default function SettingsView({ session, username: initialUsername, photo
   const [loading, setLoading] = useState(false);
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [currentTheme, setCurrentTheme] = useState("auto");
+  const [themeLoading, setThemeLoading] = useState(false);
+
+  useState(() => {
+    if (session.role === "MINISTRY_ADMIN") {
+      fetch("/api/settings/theme").then(r => r.json()).then(d => setCurrentTheme(d.theme || "auto")).catch(() => {});
+    }
+  });
+
+  const handleThemeChange = async (themeId: string) => {
+    setThemeLoading(true);
+    setMessage(null);
+    const res = await fetch("/api/settings/theme", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme: themeId }),
+    });
+    if (res.ok) {
+      setCurrentTheme(themeId);
+      setMessage({ type: "success", text: "تم تغيير الثيم — أعد تحميل الصفحة لترى التغيير" });
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      setMessage({ type: "error", text: "خطأ في تغيير الثيم" });
+    }
+    setThemeLoading(false);
+  };
 
   const compressImage = (file: File, maxW = 400, quality = 0.7): Promise<Blob> =>
     new Promise((resolve) => {
@@ -243,6 +277,38 @@ export default function SettingsView({ session, username: initialUsername, photo
           </div>
         </div>
       </div>
+
+      {/* Theme Picker — Admin only */}
+      {session.role === "MINISTRY_ADMIN" && (
+        <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
+          <div className="p-6">
+            <h3 className="font-bold font-amiri mb-4" style={{ color: "var(--navy)" }}>
+              🎨 مظهر التطبيق
+            </h3>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {themeOptions.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => handleThemeChange(t.id)}
+                  disabled={themeLoading}
+                  className="p-3 rounded-xl text-center transition-all disabled:opacity-50"
+                  style={{
+                    background: currentTheme === t.id ? "var(--gold-pale)" : "var(--cream)",
+                    border: currentTheme === t.id ? "2px solid var(--gold)" : "2px solid var(--cream-dark)",
+                    color: "var(--navy)",
+                  }}
+                >
+                  <span className="text-2xl block mb-1">{t.emoji}</span>
+                  <span className="text-xs font-medium">{t.name}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs mt-3" style={{ color: "var(--navy-light)" }}>
+              اختر &quot;تلقائي&quot; ليتغير الثيم حسب المناسبة تلقائياً
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Change Password */}
       <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>

@@ -70,6 +70,14 @@ const migrations = [
     sql: "ALTER TABLE User ADD COLUMN address TEXT",
     desc: "Add address column to User",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM sqlite_master WHERE type='table' AND name='Setting'",
+    sql: `CREATE TABLE Setting (
+      "key" TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL
+    )`,
+    desc: "Create Setting table",
+  },
 ];
 
 for (const m of migrations) {

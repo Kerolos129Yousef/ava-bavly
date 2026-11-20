@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { getActiveTheme } from "@/lib/themes";
 import SeasonalOverlay from "./SeasonalOverlay";
 
-export default function ThemeProvider() {
-  const theme = getActiveTheme();
+export default function ThemeProvider({ override }: { override?: string }) {
+  const theme = getActiveTheme(override);
 
   useEffect(() => {
     const root = document.documentElement;

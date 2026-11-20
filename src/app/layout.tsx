@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import NavBar from "@/components/NavBar";
 import BottomNav from "@/components/BottomNav";
 import SplashScreen from "@/components/SplashScreen";
@@ -32,6 +33,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
+  let themeOverride = "auto";
+  try {
+    const setting = await prisma.setting.findUnique({ where: { key: "themeOverride" } });
+    if (setting) themeOverride = setting.value;
+  } catch {}
 
   return (
     <html lang="ar" dir="rtl">
@@ -41,10 +47,11 @@ export default async function RootLayout({
           rel="stylesheet"
         />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <script dangerouslySetInnerHTML={{ __html: `window.__THEME_OVERRIDE__=${JSON.stringify(themeOverride)};` }} />
       </head>
       <body className="min-h-screen" style={{ background: "var(--cream)" }}>
         <SplashScreen />
-        <ThemeProvider />
+        <ThemeProvider override={themeOverride} />
         <RegisterSW />
         {session && <PushSubscriber />}
         <NavBar session={session} />
