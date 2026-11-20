@@ -21,6 +21,18 @@ const migrations = [
     sql: "ALTER TABLE User ADD COLUMN photo TEXT",
     desc: "Add photo column to User",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM sqlite_master WHERE type='table' AND name='Notification'",
+    sql: `CREATE TABLE Notification (
+      id TEXT PRIMARY KEY NOT NULL,
+      title TEXT NOT NULL,
+      body TEXT NOT NULL,
+      senderId TEXT NOT NULL REFERENCES User(id),
+      classId TEXT REFERENCES Class(id),
+      createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    desc: "Create Notification table",
+  },
 ];
 
 for (const m of migrations) {

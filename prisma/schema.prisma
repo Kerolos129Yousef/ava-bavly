@@ -18,9 +18,10 @@ model User {
   suspended Boolean  @default(false)
   servantId String?
   servant   Servant? @relation(fields: [servantId], references: [id])
-  classId   String?
-  class     Class?   @relation(fields: [classId], references: [id])
-  createdAt DateTime @default(now())
+  classId        String?
+  class          Class?         @relation(fields: [classId], references: [id])
+  notifications  Notification[]
+  createdAt      DateTime       @default(now())
 }
 
 model Person {
@@ -81,12 +82,24 @@ model Servant {
 }
 
 model Class {
-  id       String    @id @default(cuid())
-  name     String    @unique
-  type     String
-  persons  Person[]
-  users    User[]
-  servants Servant[]
+  id            String         @id @default(cuid())
+  name          String         @unique
+  type          String
+  persons       Person[]
+  users         User[]
+  servants      Servant[]
+  notifications Notification[]
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  classId   String?
+  class     Class?   @relation(fields: [classId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model BehaviorNote {

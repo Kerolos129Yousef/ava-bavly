@@ -50,6 +50,7 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
     { href: "/persons", label: "المخدومين", show: true },
     { href: "/classes", label: "الفصول", show: session.role !== "SERVANT" },
     { href: "/servants", label: "الخدام", show: session.role !== "SERVANT" },
+    { href: "/notifications", label: "الإشعارات", show: true },
     { href: "/reports", label: "التقارير", show: session.role !== "SERVANT" },
     { href: "/users", label: "المستخدمين", show: session.role === "MINISTRY_ADMIN" },
   ].filter((l) => l.show);
@@ -192,11 +193,24 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
             </div>
           )}
 
-          {/* Settings section */}
+          {/* Notifications & Settings */}
           <div>
             <p className="text-xs font-bold px-3 mb-2" style={{ color: "var(--gold)", opacity: 0.6 }}>
-              الإعدادات
+              عام
             </p>
+
+            <a
+              href="/notifications"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-all"
+              style={{
+                color: pathname === "/notifications" ? "var(--gold)" : "var(--cream)",
+                background: pathname === "/notifications" ? "rgba(201, 168, 76, 0.15)" : "transparent",
+              }}
+            >
+              <span className="text-lg">🔔</span>
+              <span className="text-sm">الإشعارات</span>
+            </a>
 
             <a
               href="/settings"
