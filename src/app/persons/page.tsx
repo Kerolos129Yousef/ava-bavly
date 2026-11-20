@@ -49,6 +49,7 @@ export default async function PersonsPage() {
         }))}
         classes={classes}
         canAdd={session.role !== "SERVANT"}
+        role={session.role}
       />
     </div>
   );

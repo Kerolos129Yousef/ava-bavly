@@ -60,11 +60,14 @@ export default function PersonsView({
   persons,
   classes,
   canAdd = true,
+  role = "MINISTRY_ADMIN",
 }: {
   persons: Person[];
   classes: ClassInfo[];
   canAdd?: boolean;
+  role?: string;
 }) {
+  const isServant = role === "SERVANT";
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [filterClassId, setFilterClassId] = useState<string>("");
 
@@ -80,6 +83,36 @@ export default function PersonsView({
     .filter((g) => g.persons.length > 0);
 
   const unassigned = persons.filter((p) => !p.classId);
+
+  if (isServant) {
+    return (
+      <div>
+        {persons.length === 0 ? (
+          <div className="church-card text-center py-12">
+            <p className="text-4xl mb-3" style={{ color: "var(--gold)" }}>🕊</p>
+            <p style={{ color: "var(--navy-light)" }}>لا يوجد مخدومين مسجلين</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {persons.map((p) => (
+              <Link key={p.id} href={`/persons/${p.id}`} className="church-card overflow-hidden hover:shadow-lg transition-shadow block">
+                <div className="p-4 flex flex-col items-center text-center">
+                  <SmallPhoto src={p.photo} name={p.name} size={72} />
+                  <p className="font-bold text-sm mt-3" style={{ color: "var(--navy)" }}>{p.name}</p>
+                  {p.servant && (
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <SmallPhoto src={p.servant.photo} name={p.servant.name} size={20} />
+                      <span className="text-xs" style={{ color: "var(--navy-light)" }}>{p.servant.name.split(" ")[0]}</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>
