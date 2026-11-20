@@ -64,20 +64,22 @@ export default async function Home() {
       {/* Quick Nav Cards for Admin */}
       {session.role !== "SERVANT" && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Link
-            href="/classes"
-            className="church-card p-5 text-center transition-all hover:shadow-lg group"
-            style={{ borderTop: "3px solid var(--gold)" }}
-          >
-            <div
-              className="w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl transition-all group-hover:scale-110"
-              style={{ background: "var(--gold-pale)", border: "2px solid var(--gold)" }}
+          {isAdmin && (
+            <Link
+              href="/classes"
+              className="church-card p-5 text-center transition-all hover:shadow-lg group"
+              style={{ borderTop: "3px solid var(--gold)" }}
             >
-              📖
-            </div>
-            <h3 className="text-sm font-bold mt-2 font-amiri" style={{ color: "var(--navy)" }}>الفصول</h3>
-            <p className="text-xl font-bold mt-1" style={{ color: "var(--gold-dark)" }}>{classes.length}</p>
-          </Link>
+              <div
+                className="w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl transition-all group-hover:scale-110"
+                style={{ background: "var(--gold-pale)", border: "2px solid var(--gold)" }}
+              >
+                📖
+              </div>
+              <h3 className="text-sm font-bold mt-2 font-amiri" style={{ color: "var(--navy)" }}>الفصول</h3>
+              <p className="text-xl font-bold mt-1" style={{ color: "var(--gold-dark)" }}>{classes.length}</p>
+            </Link>
+          )}
 
           <Link
             href="/servants"
@@ -127,7 +129,7 @@ export default async function Home() {
       )}
 
       {/* Class Cards */}
-      {session.role !== "SERVANT" && (
+      {isAdmin && (
         <div className="mb-6">
           <h2 className="text-xl font-bold font-amiri mb-4" style={{ color: "var(--navy)" }}>
             <span style={{ color: "var(--gold)" }}>📖</span> الفصول
