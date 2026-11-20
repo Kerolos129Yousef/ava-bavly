@@ -16,13 +16,16 @@ const roleLabels: Record<string, string> = {
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 
-export default function SettingsView({ session }: { session: SessionUser }) {
+export default function SettingsView({ session, username: initialUsername }: { session: SessionUser; username: string }) {
   const router = useRouter();
   const [changingPassword, setChangingPassword] = useState(false);
+  const [changingUsername, setChangingUsername] = useState(false);
+  const [username, setUsername] = useState(initialUsername);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [usernameLoading, setUsernameLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleChangePassword = async () => {
@@ -54,6 +57,28 @@ export default function SettingsView({ session }: { session: SessionUser }) {
     setLoading(false);
   };
 
+  const handleChangeUsername = async () => {
+    if (!username.trim() || username.length < 3) {
+      setMessage({ type: "error", text: "اسم المستخدم يجب أن يكون 3 أحرف على الأقل" });
+      return;
+    }
+    setUsernameLoading(true);
+    setMessage(null);
+    const res = await fetch("/api/auth/change-username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+    if (res.ok) {
+      setMessage({ type: "success", text: "تم تغيير اسم المستخدم بنجاح" });
+      setChangingUsername(false);
+    } else {
+      const data = await res.json();
+      setMessage({ type: "error", text: data.error || "خطأ في تغيير اسم المستخدم" });
+    }
+    setUsernameLoading(false);
+  };
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
@@ -74,7 +99,7 @@ export default function SettingsView({ session }: { session: SessionUser }) {
           >
             {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="font-bold text-lg font-amiri" style={{ color: "var(--navy)" }}>{session.name}</h2>
             <span
               className="inline-block text-xs mt-1 px-3 py-0.5 rounded-full"
@@ -82,6 +107,49 @@ export default function SettingsView({ session }: { session: SessionUser }) {
             >
               {roleLabels[session.role]}
             </span>
+          </div>
+        </div>
+
+        {/* Username section */}
+        <div className="px-6 pb-6 pt-0" style={{ borderTop: "1px solid var(--cream-dark)" }}>
+          <div className="pt-4">
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy-light)" }}>اسم المستخدم</label>
+            {!changingUsername ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium" style={{ color: "var(--navy)" }}>{username}</span>
+                <button
+                  onClick={() => setChangingUsername(true)}
+                  className="text-xs px-2 py-1 rounded hover:opacity-80"
+                  style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}
+                >
+                  تعديل
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="flex-1 rounded-lg px-3 py-1.5 text-sm"
+                  style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                />
+                <button
+                  onClick={handleChangeUsername}
+                  disabled={usernameLoading}
+                  className="text-xs px-3 py-1.5 rounded font-medium disabled:opacity-50"
+                  style={{ background: "var(--gold)", color: "white" }}
+                >
+                  {usernameLoading ? "..." : "حفظ"}
+                </button>
+                <button
+                  onClick={() => { setChangingUsername(false); setUsername(initialUsername); setMessage(null); }}
+                  className="text-xs px-2 py-1.5 rounded"
+                  style={{ color: "var(--navy-light)" }}
+                >
+                  إلغاء
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
