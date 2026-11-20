@@ -62,6 +62,18 @@ export default function SplashScreen() {
       >
         خدمة ذوي القدرات الخاصة
       </p>
+      <p
+        style={{
+          color: "#c9a84c",
+          fontFamily: "Cairo, sans-serif",
+          fontSize: "0.65rem",
+          position: "absolute",
+          bottom: "2rem",
+          opacity: 0.5,
+        }}
+      >
+        إعداد المهندس / كيرلس يوسف — صلوا لأجل الخدمة وضعفي
+      </p>
     </div>
   );
 }
