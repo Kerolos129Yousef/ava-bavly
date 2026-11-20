@@ -92,53 +92,59 @@ export default async function ReportsPage() {
           <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>{totalPersons}</p>
           <p className="text-sm" style={{ color: "var(--gold-dark)" }}>إجمالي المخدومين</p>
         </div>
-        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
-          <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
-            {classes.length}
-          </p>
-          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>عدد الفصول</p>
-        </div>
+        {!isClassScoped && (
+          <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+            <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
+              {classes.length}
+            </p>
+            <p className="text-sm" style={{ color: "var(--gold-dark)" }}>عدد الفصول</p>
+          </div>
+        )}
         <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
           <p className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
             {totalBehaviorNotes}
           </p>
           <p className="text-sm" style={{ color: "var(--gold-dark)" }}>ملاحظات سلوكية</p>
         </div>
-        <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
-          <p className="text-3xl font-bold" style={{ color: "var(--burgundy)" }}>{withoutClass}</p>
-          <p className="text-sm" style={{ color: "var(--gold-dark)" }}>بدون فصل</p>
-        </div>
+        {!isClassScoped && (
+          <div className="church-card p-4 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
+            <p className="text-3xl font-bold" style={{ color: "var(--burgundy)" }}>{withoutClass}</p>
+            <p className="text-sm" style={{ color: "var(--gold-dark)" }}>بدون فصل</p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Class Distribution */}
-        <div className="church-card p-6">
-          <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>توزيع الفصول</h2>
-          <div className="space-y-3">
-            {classes.map((cls) => {
-              const pct =
-                totalPersons > 0
-                  ? Math.round((cls._count.persons / totalPersons) * 100)
-                  : 0;
-              return (
-                <div key={cls.id}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium">{cls.name}</span>
-                    <span>
-                      {cls._count.persons} ({pct}%)
-                    </span>
+        {!isClassScoped && (
+          <div className="church-card p-6">
+            <h2 className="text-lg font-bold mb-4 font-amiri" style={{ color: "var(--navy)" }}>توزيع الفصول</h2>
+            <div className="space-y-3">
+              {classes.map((cls) => {
+                const pct =
+                  totalPersons > 0
+                    ? Math.round((cls._count.persons / totalPersons) * 100)
+                    : 0;
+                return (
+                  <div key={cls.id}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-medium">{cls.name}</span>
+                      <span>
+                        {cls._count.persons} ({pct}%)
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className={`${classColors[cls.type] || "bg-gray-500"} h-3 rounded-full transition-all`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                      className={`${classColors[cls.type] || "bg-gray-500"} h-3 rounded-full transition-all`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Gender Distribution */}
         <div className="church-card p-6">
