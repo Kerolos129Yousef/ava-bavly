@@ -6,12 +6,20 @@ export default async function ReportsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
   if (session.role === "SERVANT") redirect("/");
+
+  const isClassScoped = session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT";
+  const personWhere = isClassScoped ? { classId: session.classId } : {};
+  const classWhere = isClassScoped ? { id: session.classId } : {};
+  const behaviorWhere = isClassScoped ? { person: { classId: session.classId } } : {};
+
   const [totalPersons, classes, persons, recentBehavior] = await Promise.all([
-    prisma.person.count(),
+    prisma.person.count({ where: personWhere }),
     prisma.class.findMany({
+      where: classWhere,
       include: { _count: { select: { persons: true } } },
     }),
     prisma.person.findMany({
+      where: personWhere,
       select: {
         gender: true,
         disabilityType: true,
@@ -21,6 +29,7 @@ export default async function ReportsPage() {
       },
     }),
     prisma.behaviorNote.findMany({
+      where: behaviorWhere,
       take: 15,
       orderBy: { date: "desc" },
       include: { person: { select: { name: true } } },
