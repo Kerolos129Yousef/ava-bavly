@@ -10,10 +10,19 @@ export async function POST(req: NextRequest) {
 
   const { photo } = await req.json();
 
+  const photoValue = photo || null;
+
   await prisma.user.update({
     where: { id: session.id },
-    data: { photo: photo || null },
+    data: { photo: photoValue },
   });
+
+  if (session.servantId) {
+    await prisma.servant.update({
+      where: { id: session.servantId },
+      data: { photo: photoValue },
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }
