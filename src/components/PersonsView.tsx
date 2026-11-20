@@ -147,17 +147,8 @@ export default function PersonsView({
   return (
     <div>
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        {canAdd && (
-          <Link href="/persons/new" className="btn-gold text-sm">
-            + إضافة مخدوم
-          </Link>
-        )}
-
-        <div className="flex-1" />
-
-        {/* View Toggle */}
-        <div className="flex rounded-lg overflow-hidden" style={{ border: "2px solid var(--gold)" }}>
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <div className="flex rounded-lg overflow-hidden flex-shrink-0" style={{ border: "2px solid var(--gold)" }}>
           <button
             onClick={() => setViewMode("table")}
             className="px-3 py-1.5 text-xs font-medium transition-colors"
@@ -179,6 +170,12 @@ export default function PersonsView({
             حسب الفصل
           </button>
         </div>
+
+        {canAdd && (
+          <Link href="/persons/new" className="btn-gold text-sm flex-shrink-0">
+            + إضافة مخدوم
+          </Link>
+        )}
       </div>
 
       {searchBar}
