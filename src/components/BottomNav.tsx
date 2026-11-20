@@ -30,6 +30,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
   if (!session || pathname === "/login") return null;
 
   const isServant = session.role === "SERVANT";
+  const isClassAdmin = session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT";
 
   const tabs = [
     {
@@ -40,7 +41,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
         </svg>
       ),
-      show: !isServant,
+      show: !isServant && !isClassAdmin,
     },
     {
       href: "/servants",

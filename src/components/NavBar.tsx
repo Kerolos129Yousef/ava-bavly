@@ -58,7 +58,7 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
   const desktopLinks = [
     { href: "/", label: "الرئيسية", show: true },
     { href: "/persons", label: "المخدومين", show: true },
-    { href: "/classes", label: "الفصول", show: session.role !== "SERVANT" },
+    { href: "/classes", label: "الفصول", show: session.role === "MINISTRY_ADMIN" },
     { href: "/servants", label: "الخدام", show: session.role !== "SERVANT" },
     { href: "/notifications", label: "الإشعارات", show: true },
     { href: "/reports", label: "التقارير", show: session.role !== "SERVANT" },
