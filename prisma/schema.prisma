@@ -9,16 +9,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  password  String
-  name      String
-  photo     String?
-  role      String   // SERVANT, CLASS_ADMIN, CLASS_ASSISTANT, MINISTRY_ADMIN
-  status    String   @default("APPROVED") // PENDING, APPROVED, REJECTED
-  suspended Boolean  @default(false)
-  servantId String?
-  servant   Servant? @relation(fields: [servantId], references: [id])
+  id         String   @id @default(cuid())
+  username   String   @unique
+  password   String
+  name       String
+  photo      String?
+  phone      String?
+  nationalId String?
+  address    String?
+  role       String   // SERVANT, CLASS_ADMIN, CLASS_ASSISTANT, MINISTRY_ADMIN
+  status     String   @default("APPROVED") // PENDING, APPROVED, REJECTED
+  suspended  Boolean  @default(false)
+  servantId  String?
+  servant    Servant? @relation(fields: [servantId], references: [id])
   classId        String?
   class          Class?         @relation(fields: [classId], references: [id])
   notifications         Notification[]

@@ -14,6 +14,10 @@ interface User {
   servantId?: string | null;
   classId?: string | null;
   suspended?: boolean;
+  photo?: string | null;
+  phone?: string | null;
+  nationalId?: string | null;
+  address?: string | null;
 }
 
 const roleLabels: Record<string, string> = {
@@ -49,7 +53,7 @@ export default function UsersList({
   const pendingUsers = users.filter((u) => u.status === "PENDING");
   const activeUsers = users.filter((u) => u.status !== "PENDING");
 
-  const handleApprove = async (u: User, role: string, servantId?: string, classId?: string) => {
+  const handleApprove = async (u: User, role: string, classId?: string) => {
     setActionLoading(u.id);
     const res = await fetch(`/api/users/${u.id}`, {
       method: "PUT",
@@ -58,7 +62,6 @@ export default function UsersList({
         name: u.name,
         role,
         status: "APPROVED",
-        servantId: servantId || "",
         classId: classId || "",
       }),
     });
@@ -74,9 +77,7 @@ export default function UsersList({
   const handleReject = async (u: User) => {
     if (!confirm(`هل أنت متأكد من رفض طلب "${u.name}"؟`)) return;
     setActionLoading(u.id);
-    const res = await fetch(`/api/users/${u.id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(`/api/users/${u.id}`, { method: "DELETE" });
     if (res.ok) {
       router.refresh();
     } else {
@@ -169,7 +170,6 @@ export default function UsersList({
 
   return (
     <div>
-      {/* Pending Registration Requests */}
       {pendingUsers.length > 0 && (
         <div className="mb-8">
           <h2 className="text-lg font-bold font-amiri mb-3 flex items-center gap-2" style={{ color: "var(--navy)" }}>
@@ -181,7 +181,6 @@ export default function UsersList({
               <PendingUserCard
                 key={u.id}
                 user={u}
-                servants={servants}
                 classes={classes}
                 loading={actionLoading === u.id}
                 onApprove={handleApprove}
@@ -353,34 +352,47 @@ export default function UsersList({
 
 function PendingUserCard({
   user,
-  servants,
   classes,
   loading,
   onApprove,
   onReject,
 }: {
   user: User;
-  servants: Servant[];
   classes: ClassItem[];
   loading: boolean;
-  onApprove: (u: User, role: string, servantId?: string, classId?: string) => void;
+  onApprove: (u: User, role: string, classId?: string) => void;
   onReject: (u: User) => void;
 }) {
   const [role, setRole] = useState("SERVANT");
-  const [servantId, setServantId] = useState("");
   const [classId, setClassId] = useState("");
 
   return (
     <div className="church-card p-5" style={{ borderRight: "3px solid var(--gold)", background: "var(--gold-pale)" }}>
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2">
+      <div className="flex items-start gap-4 flex-wrap">
+        {/* Photo */}
+        <div className="w-20 h-20 rounded-full overflow-hidden shrink-0" style={{ border: "3px solid var(--gold)", background: "var(--cream)" }}>
+          {user.photo ? (
+            <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-2xl" style={{ color: "var(--gold)" }}>👤</div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-bold text-lg" style={{ color: "var(--navy)" }}>{user.name}</span>
             <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "var(--gold)", color: "white" }}>
               جديد
             </span>
           </div>
-          <p className="text-sm mt-1" style={{ color: "var(--navy-light)" }}>اسم المستخدم: {user.username}</p>
+
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm" style={{ color: "var(--navy-light)" }}>
+            <p><strong style={{ color: "var(--navy)" }}>اسم المستخدم:</strong> {user.username}</p>
+            {user.nationalId && <p><strong style={{ color: "var(--navy)" }}>رقم البطاقة:</strong> {user.nationalId}</p>}
+            {user.phone && <p><strong style={{ color: "var(--navy)" }}>الموبايل:</strong> {user.phone}</p>}
+            {user.address && <p><strong style={{ color: "var(--navy)" }}>العنوان:</strong> {user.address}</p>}
+          </div>
         </div>
       </div>
 
@@ -399,29 +411,18 @@ function PendingUserCard({
             <option value="MINISTRY_ADMIN">أمين الخدمة</option>
           </select>
         </div>
-        {role === "SERVANT" && (
-          <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>ربط بخادم</label>
-            <select value={servantId} onChange={(e) => setServantId(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ background: "white" }}>
-              <option value="">-- اختياري --</option>
-              {servants.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-        )}
-        {(role === "CLASS_ADMIN" || role === "CLASS_ASSISTANT") && (
-          <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>ربط بفصل</label>
-            <select value={classId} onChange={(e) => setClassId(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ background: "white" }}>
-              <option value="">-- اختر فصل --</option>
-              {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-          </div>
-        )}
+        <div>
+          <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>الفصل</label>
+          <select value={classId} onChange={(e) => setClassId(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ background: "white" }}>
+            <option value="">-- اختر فصل --</option>
+            {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        </div>
       </div>
 
       <div className="flex gap-2 mt-4">
         <button
-          onClick={() => onApprove(user, role, servantId, classId)}
+          onClick={() => onApprove(user, role, classId)}
           disabled={loading}
           className="px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
           style={{ background: "#166534", color: "white" }}

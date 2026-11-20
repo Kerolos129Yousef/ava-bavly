@@ -55,6 +55,21 @@ const migrations = [
     )`,
     desc: "Create PushSubscription table",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='phone'",
+    sql: "ALTER TABLE User ADD COLUMN phone TEXT",
+    desc: "Add phone column to User",
+  },
+  {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='nationalId'",
+    sql: "ALTER TABLE User ADD COLUMN nationalId TEXT",
+    desc: "Add nationalId column to User",
+  },
+  {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='address'",
+    sql: "ALTER TABLE User ADD COLUMN address TEXT",
+    desc: "Add address column to User",
+  },
 ];
 
 for (const m of migrations) {

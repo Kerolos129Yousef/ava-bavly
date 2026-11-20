@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  const { username, password, name, role, servantId, classId } = await req.json();
+  const { username, password, name, role, servantId, classId, photo, phone, nationalId, address } = await req.json();
 
   if (!username?.trim() || !password?.trim() || !name?.trim()) {
     return NextResponse.json({ error: "كل الحقول مطلوبة" }, { status: 400 });
@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Public registration (pending approval)
+  if (!name?.trim() || !nationalId?.trim() || !address?.trim()) {
+    return NextResponse.json({ error: "الاسم الرباعي ورقم البطاقة والعنوان مطلوبين" }, { status: 400 });
+  }
+
   const hashed = await hashPassword(password.trim());
   await prisma.user.create({
     data: {
@@ -46,6 +50,10 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       role: "SERVANT",
       status: "PENDING",
+      photo: photo || null,
+      phone: phone?.trim() || null,
+      nationalId: nationalId.trim(),
+      address: address.trim(),
     },
   });
 

@@ -43,6 +43,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     data.status = status;
   }
 
+  // On approval: create a Servant record from the pending user's data
+  if (status === "APPROVED") {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (user && user.status === "PENDING") {
+      const servant = await prisma.servant.create({
+        data: {
+          name: user.name,
+          phone: user.phone || null,
+          photo: user.photo || null,
+          address: user.address || null,
+          classId: classId || null,
+        },
+      });
+      data.servantId = servant.id;
+      data.photo = user.photo || null;
+    }
+  }
+
   if (password?.trim()) {
     data.password = await hashPassword(password.trim());
   }
