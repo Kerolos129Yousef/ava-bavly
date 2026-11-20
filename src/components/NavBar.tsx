@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
 
 interface SessionUser {
   id: string;
@@ -21,6 +20,12 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (pathname !== "/") {
+      window.history.replaceState(null, "", pathname);
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -46,12 +51,12 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
     >
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" replace className="flex items-center gap-2 shrink-0">
+        <a href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-2xl" style={{ color: "var(--gold)" }}>☦</span>
           <span className="text-xl font-bold font-amiri" style={{ color: "var(--gold-light)" }}>
             أفا بافلي
           </span>
-        </Link>
+        </a>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1 text-sm">
@@ -107,10 +112,9 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
           >
             <div className="flex flex-col gap-1">
               {links.map((l) => (
-                <Link
+                <a
                   key={l.href}
                   href={l.href}
-                  replace
                   onClick={() => setMenuOpen(false)}
                   className="px-4 py-2.5 rounded-lg text-sm transition-all"
                   style={{
@@ -120,7 +124,7 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
                   }}
                 >
                   {l.label}
-                </Link>
+                </a>
               ))}
             </div>
 
@@ -148,9 +152,8 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
 
 function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <Link
+    <a
       href={href}
-      replace
       className="px-3 py-1.5 rounded-lg text-sm transition-all"
       style={{
         color: active ? "var(--gold)" : "var(--cream)",
@@ -159,6 +162,6 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
       }}
     >
       {children}
-    </Link>
+    </a>
   );
 }
