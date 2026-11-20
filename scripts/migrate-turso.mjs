@@ -33,6 +33,11 @@ const migrations = [
     )`,
     desc: "Create Notification table",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='lastSeenNotifications'",
+    sql: "ALTER TABLE User ADD COLUMN lastSeenNotifications DATETIME",
+    desc: "Add lastSeenNotifications column to User",
+  },
 ];
 
 for (const m of migrations) {

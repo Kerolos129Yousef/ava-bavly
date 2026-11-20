@@ -20,8 +20,9 @@ model User {
   servant   Servant? @relation(fields: [servantId], references: [id])
   classId        String?
   class          Class?         @relation(fields: [classId], references: [id])
-  notifications  Notification[]
-  createdAt      DateTime       @default(now())
+  notifications         Notification[]
+  lastSeenNotifications DateTime?
+  createdAt             DateTime       @default(now())
 }
 
 model Person {

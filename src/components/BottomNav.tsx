@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 interface SessionUser {
@@ -10,6 +11,20 @@ interface SessionUser {
 
 export default function BottomNav({ session }: { session: SessionUser | null }) {
   const pathname = usePathname();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/notifications/unread")
+      .then((r) => r.json())
+      .then((d) => setUnreadCount(d.count || 0))
+      .catch(() => {});
+  }, [session, pathname]);
+
+  useEffect(() => {
+    if (!session || pathname !== "/notifications") return;
+    fetch("/api/notifications/seen", { method: "POST" }).then(() => setUnreadCount(0)).catch(() => {});
+  }, [session, pathname]);
 
   if (!session || pathname === "/login") return null;
 
@@ -67,6 +82,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
     {
       href: "/notifications",
       label: "الإشعارات",
+      hasBadge: true,
       icon: (active: boolean) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? "var(--gold)" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -132,14 +148,24 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
             );
           }
 
+          const showBadge = "hasBadge" in tab && tab.hasBadge && unreadCount > 0;
+
           return (
             <a
               key={tab.href}
               href={tab.href}
-              className="flex flex-col items-center py-1.5 px-2 min-w-[56px]"
+              className="flex flex-col items-center py-1.5 px-2 min-w-[56px] relative"
             >
-              <span style={{ color: active ? "var(--gold)" : "var(--cream-dark)" }}>
+              <span className="relative" style={{ color: active ? "var(--gold)" : "var(--cream-dark)" }}>
                 {tab.icon(active)}
+                {showBadge && (
+                  <span
+                    className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1"
+                    style={{ background: "var(--burgundy)", color: "white" }}
+                  >
+                    {unreadCount > 9 ? "+9" : unreadCount}
+                  </span>
+                )}
               </span>
               <span
                 className="text-[10px] mt-1 font-medium"

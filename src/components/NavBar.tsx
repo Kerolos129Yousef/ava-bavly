@@ -20,6 +20,15 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/notifications/unread")
+      .then((r) => r.json())
+      .then((d) => setUnreadCount(d.count || 0))
+      .catch(() => {});
+  }, [session, pathname]);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -92,7 +101,7 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
               <a
                 key={l.href}
                 href={l.href}
-                className="px-3 py-1.5 rounded-lg text-sm transition-all"
+                className="px-3 py-1.5 rounded-lg text-sm transition-all relative"
                 style={{
                   color: pathname === l.href ? "var(--gold)" : "var(--cream)",
                   background: pathname === l.href ? "rgba(201, 168, 76, 0.15)" : "transparent",
@@ -100,6 +109,14 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
                 }}
               >
                 {l.label}
+                {l.href === "/notifications" && unreadCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1"
+                    style={{ background: "var(--burgundy)", color: "white" }}
+                  >
+                    {unreadCount > 9 ? "+9" : unreadCount}
+                  </span>
+                )}
               </a>
             ))}
             <span className="border-r mx-2 h-5" style={{ borderColor: "var(--gold)", opacity: 0.3 }} />
@@ -208,7 +225,17 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
                 background: pathname === "/notifications" ? "rgba(201, 168, 76, 0.15)" : "transparent",
               }}
             >
-              <span className="text-lg">🔔</span>
+              <span className="text-lg relative">
+                🔔
+                {unreadCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1"
+                    style={{ background: "var(--burgundy)", color: "white" }}
+                  >
+                    {unreadCount > 9 ? "+9" : unreadCount}
+                  </span>
+                )}
+              </span>
               <span className="text-sm">الإشعارات</span>
             </a>
 
