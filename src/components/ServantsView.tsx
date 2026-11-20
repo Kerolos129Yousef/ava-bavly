@@ -165,14 +165,16 @@ export default function ServantsView({
     ? servants.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : servants;
 
-  const groupedByClass = classes
+  const filteredClasses = filterClassId ? classes.filter((c) => c.id === filterClassId) : classes;
+
+  const groupedByClass = filteredClasses
     .map((c) => ({
       ...c,
       servants: searchedServants.filter((s) => s.classId === c.id),
     }))
     .filter((g) => g.servants.length > 0);
 
-  const unassigned = searchedServants.filter((s) => !s.classId);
+  const unassigned = filterClassId ? [] : searchedServants.filter((s) => !s.classId);
 
   return (
     <div>
@@ -441,6 +443,19 @@ export default function ServantsView({
       {/* By Class View */}
       {viewMode === "byClass" && (
         <div className="space-y-6">
+          <div className="mb-2">
+            <select
+              value={filterClassId}
+              onChange={(e) => setFilterClassId(e.target.value)}
+              className="rounded-lg px-3 py-2 text-sm"
+              style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)", color: "var(--navy)" }}
+            >
+              <option value="">كل الفصول</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
           {groupedByClass.map((group) => (
             <div key={group.id} className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
               <div className="px-5 py-3 flex items-center justify-between" style={{ background: "var(--gold-pale)" }}>

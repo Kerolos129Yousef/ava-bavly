@@ -81,14 +81,16 @@ export default function PersonsView({
     return true;
   });
 
-  const groupedByClass = classes
+  const filteredClasses = filterClassId ? classes.filter((c) => c.id === filterClassId) : classes;
+
+  const groupedByClass = filteredClasses
     .map((c) => ({
       ...c,
       persons: searchedPersons.filter((p) => p.classId === c.id),
     }))
     .filter((g) => g.persons.length > 0);
 
-  const unassigned = searchedPersons.filter((p) => !p.classId);
+  const unassigned = filterClassId ? [] : searchedPersons.filter((p) => !p.classId);
 
   const searchBar = (
     <div className="mb-4 relative">
@@ -272,6 +274,19 @@ export default function PersonsView({
       {/* By Class View */}
       {viewMode === "byClass" && (
         <div className="space-y-6">
+          <div className="mb-2">
+            <select
+              value={filterClassId}
+              onChange={(e) => setFilterClassId(e.target.value)}
+              className="rounded-lg px-3 py-2 text-sm"
+              style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)", color: "var(--navy)" }}
+            >
+              <option value="">كل الفصول</option>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
           {groupedByClass.map((group) => (
             <div key={group.id} className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
               <div className="px-5 py-3 flex items-center justify-between" style={{ background: "var(--gold-pale)" }}>
