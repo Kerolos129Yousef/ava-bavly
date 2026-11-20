@@ -49,7 +49,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto py-8" style={{ background: "linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 overflow-y-auto py-8 scrollbar-hide" style={{ background: "linear-gradient(180deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%)" }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <span className="text-6xl" style={{ color: "var(--gold)" }}>☦</span>
