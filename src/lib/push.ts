@@ -15,6 +15,7 @@ export async function sendPushToUsers(userIds: string[], payload: { title: strin
     where: { userId: { in: userIds } },
   });
 
+  console.log("sendPushToUsers: found", subscriptions.length, "subscriptions for", userIds.length, "users");
   const data = JSON.stringify(payload);
 
   await Promise.allSettled(
@@ -25,6 +26,7 @@ export async function sendPushToUsers(userIds: string[], payload: { title: strin
           data
         );
       } catch (err: any) {
+        console.error("Push send error:", err.statusCode, err.message);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
         }
@@ -46,6 +48,7 @@ export async function sendPushToClass(classId: string | null, payload: { title: 
     select: { id: true },
   });
 
+  console.log("sendPushToClass: found", users.length, "users for classId:", classId);
   if (users.length === 0) return;
   await sendPushToUsers(users.map((u) => u.id), payload);
 }

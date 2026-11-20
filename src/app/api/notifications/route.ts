@@ -66,11 +66,15 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  sendPushToClass(classId || null, {
-    title: title.trim(),
-    body: body.trim(),
-    url: "/notifications",
-  }).catch(() => {});
+  try {
+    await sendPushToClass(classId || null, {
+      title: title.trim(),
+      body: body.trim(),
+      url: "/notifications",
+    });
+  } catch (e) {
+    console.error("Push notification failed:", e);
+  }
 
   return NextResponse.json(notification);
 }
