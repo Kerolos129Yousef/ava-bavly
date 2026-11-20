@@ -70,31 +70,59 @@ export default function PersonsView({
   const isServant = role === "SERVANT";
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [filterClassId, setFilterClassId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = filterClassId
-    ? persons.filter((p) => p.classId === filterClassId)
+  const searchedPersons = searchQuery
+    ? persons.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : persons;
+
+  const filtered = searchedPersons.filter((p) => {
+    if (filterClassId && p.classId !== filterClassId) return false;
+    return true;
+  });
 
   const groupedByClass = classes
     .map((c) => ({
       ...c,
-      persons: persons.filter((p) => p.classId === c.id),
+      persons: searchedPersons.filter((p) => p.classId === c.id),
     }))
     .filter((g) => g.persons.length > 0);
 
-  const unassigned = persons.filter((p) => !p.classId);
+  const unassigned = searchedPersons.filter((p) => !p.classId);
+
+  const searchBar = (
+    <div className="mb-4 relative">
+      <svg
+        className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+        width="18" height="18" viewBox="0 0 24 24" fill="none"
+        stroke="var(--navy-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        type="text"
+        placeholder="بحث بالاسم..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full rounded-lg pr-10 pl-3 py-2.5 text-sm"
+        style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)", color: "var(--navy)" }}
+      />
+    </div>
+  );
 
   if (isServant) {
     return (
       <div>
-        {persons.length === 0 ? (
+        {searchBar}
+        {searchedPersons.length === 0 ? (
           <div className="church-card text-center py-12">
             <p className="text-4xl mb-3" style={{ color: "var(--gold)" }}>🕊</p>
             <p style={{ color: "var(--navy-light)" }}>لا يوجد مخدومين مسجلين</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {persons.map((p) => (
+            {searchedPersons.map((p) => (
               <Link key={p.id} href={`/persons/${p.id}`} className="church-card overflow-hidden hover:shadow-lg transition-shadow block">
                 <div className="p-4 flex flex-col items-center text-center">
                   <SmallPhoto src={p.photo} name={p.name} size={72} />
@@ -150,6 +178,8 @@ export default function PersonsView({
           </button>
         </div>
       </div>
+
+      {searchBar}
 
       {/* Table View */}
       {viewMode === "table" && (

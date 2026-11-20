@@ -73,6 +73,7 @@ export default function ServantsView({
   const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [filterClassId, setFilterClassId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // Add form state
@@ -154,18 +155,24 @@ export default function ServantsView({
     setLoading(false);
   };
 
-  const filtered = filterClassId
-    ? servants.filter((s) => s.classId === filterClassId)
+  const filtered = servants.filter((s) => {
+    if (filterClassId && s.classId !== filterClassId) return false;
+    if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  const searchedServants = searchQuery
+    ? servants.filter((s) => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : servants;
 
   const groupedByClass = classes
     .map((c) => ({
       ...c,
-      servants: servants.filter((s) => s.classId === c.id),
+      servants: searchedServants.filter((s) => s.classId === c.id),
     }))
     .filter((g) => g.servants.length > 0);
 
-  const unassigned = servants.filter((s) => !s.classId);
+  const unassigned = searchedServants.filter((s) => !s.classId);
 
   return (
     <div>
@@ -205,6 +212,26 @@ export default function ServantsView({
             حسب الفصل
           </button>
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4 relative">
+        <svg
+          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="var(--navy-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          placeholder="بحث بالاسم..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full rounded-lg pr-10 pl-3 py-2.5 text-sm"
+          style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)", color: "var(--navy)" }}
+        />
       </div>
 
       {/* Add Form */}
