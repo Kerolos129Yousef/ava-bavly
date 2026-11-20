@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
 import BottomNav from "@/components/BottomNav";
 import SplashScreen from "@/components/SplashScreen";
+import ThemeProvider from "@/components/ThemeProvider";
 import RegisterSW from "@/components/RegisterSW";
 import PushSubscriber from "@/components/PushSubscriber";
 
@@ -43,6 +44,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-screen" style={{ background: "var(--cream)" }}>
         <SplashScreen />
+        <ThemeProvider />
         <RegisterSW />
         {session && <PushSubscriber />}
         <NavBar session={session} />

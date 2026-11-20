@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getActiveTheme } from "@/lib/themes";
 
 export default function SplashScreen() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
+  const theme = getActiveTheme();
 
   useEffect(() => {
     const t1 = setTimeout(() => {
@@ -23,7 +25,7 @@ export default function SplashScreen() {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        background: "#1a2744",
+        background: theme.splashBg,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -42,18 +44,18 @@ export default function SplashScreen() {
       />
       <p
         style={{
-          color: "#c9a84c",
+          color: theme.colors.gold,
           fontFamily: "Amiri, serif",
           fontSize: "1.5rem",
           marginTop: "1rem",
           fontWeight: 700,
         }}
       >
-        أفا بافلي
+        {theme.emoji} أفا بافلي
       </p>
       <p
         style={{
-          color: "#faf6eb",
+          color: theme.colors.cream,
           fontFamily: "Cairo, sans-serif",
           fontSize: "0.85rem",
           marginTop: "0.25rem",
@@ -64,7 +66,7 @@ export default function SplashScreen() {
       </p>
       <p
         style={{
-          color: "#c9a84c",
+          color: theme.colors.gold,
           fontFamily: "Cairo, sans-serif",
           fontSize: "0.65rem",
           position: "absolute",
