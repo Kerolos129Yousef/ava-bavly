@@ -38,6 +38,18 @@ const migrations = [
     sql: "ALTER TABLE User ADD COLUMN lastSeenNotifications DATETIME",
     desc: "Add lastSeenNotifications column to User",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM sqlite_master WHERE type='table' AND name='PushSubscription'",
+    sql: `CREATE TABLE PushSubscription (
+      id TEXT PRIMARY KEY NOT NULL,
+      userId TEXT NOT NULL,
+      endpoint TEXT NOT NULL UNIQUE,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    desc: "Create PushSubscription table",
+  },
 ];
 
 for (const m of migrations) {

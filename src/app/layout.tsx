@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import BottomNav from "@/components/BottomNav";
 import SplashScreen from "@/components/SplashScreen";
 import RegisterSW from "@/components/RegisterSW";
+import PushSubscriber from "@/components/PushSubscriber";
 
 export const metadata: Metadata = {
   title: "أفا بافلي - خدمة ذوي القدرات الخاصة",
@@ -43,6 +44,7 @@ export default async function RootLayout({
       <body className="min-h-screen" style={{ background: "var(--cream)" }}>
         <SplashScreen />
         <RegisterSW />
+        {session && <PushSubscriber />}
         <NavBar session={session} />
         <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
         <BottomNav session={session} />

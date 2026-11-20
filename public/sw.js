@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-bavly-v6";
+const CACHE_NAME = "ava-bavly-v7";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (e) => {
@@ -60,4 +60,36 @@ self.addEventListener("fetch", (e) => {
         .catch(() => caches.match(e.request))
     );
   }
+});
+
+// Push notifications
+self.addEventListener("push", (e) => {
+  if (!e.data) return;
+  const data = e.data.json();
+  e.waitUntil(
+    self.registration.showNotification(data.title || "أفا بافلي", {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      dir: "rtl",
+      lang: "ar",
+      data: { url: data.url || "/" },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = e.notification.data?.url || "/";
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes("ava-bavly") && "focus" in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
 });

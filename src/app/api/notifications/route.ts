@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { sendPushToClass } from "@/lib/push";
 import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   const session = await getSession();
@@ -64,6 +65,12 @@ export async function POST(req: NextRequest) {
       classId: classId || null,
     },
   });
+
+  sendPushToClass(classId || null, {
+    title: title.trim(),
+    body: body.trim(),
+    url: "/notifications",
+  }).catch(() => {});
 
   return NextResponse.json(notification);
 }
