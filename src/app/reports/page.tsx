@@ -8,9 +8,9 @@ export default async function ReportsPage() {
   if (session.role === "SERVANT") redirect("/");
 
   const isClassScoped = session.role === "CLASS_ADMIN" || session.role === "CLASS_ASSISTANT";
-  const personWhere = isClassScoped ? { classId: session.classId } : {};
-  const classWhere = isClassScoped ? { id: session.classId } : {};
-  const behaviorWhere = isClassScoped ? { person: { classId: session.classId } } : {};
+  const personWhere: any = isClassScoped ? { classId: session.classId } : {};
+  const classWhere: any = isClassScoped && session.classId ? { id: session.classId } : {};
+  const behaviorWhere: any = isClassScoped ? { person: { classId: session.classId } } : {};
 
   const [totalPersons, classes, persons, recentBehavior] = await Promise.all([
     prisma.person.count({ where: personWhere }),
