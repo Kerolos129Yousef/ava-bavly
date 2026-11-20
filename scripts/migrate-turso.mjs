@@ -16,6 +16,11 @@ const migrations = [
     sql: "ALTER TABLE Servant ADD COLUMN classId TEXT REFERENCES Class(id)",
     desc: "Add classId column to Servant",
   },
+  {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='photo'",
+    sql: "ALTER TABLE User ADD COLUMN photo TEXT",
+    desc: "Add photo column to User",
+  },
 ];
 
 for (const m of migrations) {

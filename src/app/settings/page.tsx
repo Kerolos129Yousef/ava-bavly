@@ -9,7 +9,7 @@ export default async function SettingsPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.id },
-    select: { username: true },
+    select: { username: true, photo: true },
   });
 
   return (
@@ -17,7 +17,7 @@ export default async function SettingsPage() {
       <h1 className="text-2xl font-bold mb-6 font-amiri" style={{ color: "var(--navy)" }}>
         <span style={{ color: "var(--gold)" }}>⚙️</span> الإعدادات
       </h1>
-      <SettingsView session={session} username={user?.username || ""} />
+      <SettingsView session={session} username={user?.username || ""} photo={user?.photo || null} />
     </div>
   );
 }

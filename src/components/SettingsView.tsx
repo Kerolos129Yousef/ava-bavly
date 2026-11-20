@@ -16,17 +16,81 @@ const roleLabels: Record<string, string> = {
   MINISTRY_ADMIN: "أمين الخدمة",
 };
 
-export default function SettingsView({ session, username: initialUsername }: { session: SessionUser; username: string }) {
+export default function SettingsView({ session, username: initialUsername, photo: initialPhoto }: { session: SessionUser; username: string; photo: string | null }) {
   const router = useRouter();
   const [changingPassword, setChangingPassword] = useState(false);
   const [changingUsername, setChangingUsername] = useState(false);
   const [username, setUsername] = useState(initialUsername);
+  const [photo, setPhoto] = useState<string | null>(initialPhoto);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const compressImage = (file: File, maxW = 400, quality = 0.7): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => resolve(b!), "image/jpeg", quality);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    setMessage(null);
+    try {
+      const compressed = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", new File([compressed], "photo.jpg", { type: "image/jpeg" }));
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json();
+        setMessage({ type: "error", text: err.error || "خطأ في رفع الصورة" });
+        return;
+      }
+      const { url } = await uploadRes.json();
+      const saveRes = await fetch("/api/auth/change-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo: url }),
+      });
+      if (saveRes.ok) {
+        setPhoto(url);
+        setMessage({ type: "success", text: "تم تغيير الصورة بنجاح" });
+        router.refresh();
+      } else {
+        setMessage({ type: "error", text: "خطأ في حفظ الصورة" });
+      }
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    setPhotoUploading(true);
+    const res = await fetch("/api/auth/change-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo: null }),
+    });
+    if (res.ok) {
+      setPhoto(null);
+      setMessage({ type: "success", text: "تم إزالة الصورة" });
+      router.refresh();
+    }
+    setPhotoUploading(false);
+  };
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
@@ -90,14 +154,31 @@ export default function SettingsView({ session, username: initialUsername }: { s
       {/* Profile Card */}
       <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
         <div className="p-6 flex items-center gap-4">
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
-            style={{
-              background: "linear-gradient(135deg, var(--gold), var(--gold-dark))",
-              color: "white",
-            }}
-          >
-            {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+          <div className="relative flex-shrink-0">
+            {photo ? (
+              <img src={photo} alt={session.name} className="w-16 h-16 rounded-full object-cover"
+                style={{ border: "3px solid var(--gold-pale)" }} />
+            ) : (
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
+                style={{
+                  background: "linear-gradient(135deg, var(--gold), var(--gold-dark))",
+                  color: "white",
+                }}
+              >
+                {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+              </div>
+            )}
+            <label
+              className="absolute -bottom-1 -left-1 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer shadow"
+              style={{ background: "var(--gold)", color: "white", border: "2px solid white" }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
+            </label>
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-bold text-lg font-amiri" style={{ color: "var(--navy)" }}>{session.name}</h2>
@@ -107,6 +188,14 @@ export default function SettingsView({ session, username: initialUsername }: { s
             >
               {roleLabels[session.role]}
             </span>
+            {photoUploading && (
+              <p className="text-xs mt-1" style={{ color: "var(--gold-dark)" }}>جاري رفع الصورة...</p>
+            )}
+            {photo && !photoUploading && (
+              <button onClick={handleRemovePhoto} className="text-xs mt-1 hover:opacity-80" style={{ color: "var(--burgundy)" }}>
+                إزالة الصورة
+              </button>
+            )}
           </div>
         </div>
 

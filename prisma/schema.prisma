@@ -13,6 +13,7 @@ model User {
   username  String   @unique
   password  String
   name      String
+  photo     String?
   role      String   // SERVANT, CLASS_ADMIN, CLASS_ASSISTANT, MINISTRY_ADMIN
   suspended Boolean  @default(false)
   servantId String?
