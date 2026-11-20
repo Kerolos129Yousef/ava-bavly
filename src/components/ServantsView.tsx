@@ -179,20 +179,9 @@ export default function ServantsView({
   return (
     <div>
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
-        {canAdd && (
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className={showForm ? "btn-navy text-sm" : "btn-gold text-sm"}
-          >
-            {showForm ? "إلغاء" : "+ إضافة خادم"}
-          </button>
-        )}
-
-        <div className="flex-1" />
-
+      <div className="flex items-center justify-between gap-3 mb-5">
         {/* View Toggle */}
-        <div className="flex rounded-lg overflow-hidden" style={{ border: "2px solid var(--gold)" }}>
+        <div className="flex rounded-lg overflow-hidden flex-shrink-0" style={{ border: "2px solid var(--gold)" }}>
           <button
             onClick={() => setViewMode("table")}
             className="px-3 py-1.5 text-xs font-medium transition-colors"
@@ -214,6 +203,15 @@ export default function ServantsView({
             حسب الفصل
           </button>
         </div>
+
+        {canAdd && (
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className={`${showForm ? "btn-navy" : "btn-gold"} text-sm flex-shrink-0`}
+          >
+            {showForm ? "إلغاء" : "+ إضافة خادم"}
+          </button>
+        )}
       </div>
 
       {/* Search Bar */}
