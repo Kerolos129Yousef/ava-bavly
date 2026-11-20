@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import PersonsView from "@/components/PersonsView";
+
 
 export default async function Home() {
   const session = await getSession();
@@ -152,22 +152,56 @@ export default async function Home() {
 
       {/* Servant: show persons directly */}
       {session.role === "SERVANT" && (
-        <PersonsView
-          persons={persons.map((p: any) => ({
-            id: p.id,
-            name: p.name,
-            photo: p.photo,
-            phone: p.phone,
-            guardianName: p.guardianName,
-            guardianPhone: p.guardianPhone,
-            classId: p.class?.id || null,
-            className: p.class?.name || null,
-            servant: p.servant ? { id: p.servant.id, name: p.servant.name, photo: p.servant.photo } : null,
-          }))}
-          classes={[]}
-          canAdd={false}
-          role="SERVANT"
-        />
+        <div>
+          {persons.length === 0 ? (
+            <div className="church-card text-center py-12">
+              <p className="text-4xl mb-3" style={{ color: "var(--gold)" }}>🕊</p>
+              <p style={{ color: "var(--navy-light)" }}>لا يوجد مخدومين مسجلين</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-5">
+              {persons.map((p: any) => (
+                <Link
+                  key={p.id}
+                  href={`/persons/${p.id}`}
+                  className="church-card overflow-hidden hover:shadow-lg transition-shadow block w-full max-w-xs"
+                  style={{ borderTop: "3px solid var(--gold)" }}
+                >
+                  <div className="p-6 flex flex-col items-center text-center">
+                    {p.photo ? (
+                      <img
+                        src={p.photo}
+                        alt={p.name}
+                        className="rounded-full object-cover"
+                        style={{ width: 96, height: 96, border: "3px solid var(--gold-pale)" }}
+                      />
+                    ) : (
+                      <div
+                        className="rounded-full flex items-center justify-center"
+                        style={{
+                          width: 96,
+                          height: 96,
+                          background: "var(--gold-pale)",
+                          color: "var(--gold-dark)",
+                          fontSize: 32,
+                          border: "3px solid var(--cream-dark)",
+                        }}
+                      >
+                        {p.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2)}
+                      </div>
+                    )}
+                    <p className="font-bold text-lg mt-3 font-amiri" style={{ color: "var(--navy)" }}>{p.name}</p>
+                    {p.class && (
+                      <span className="text-xs mt-1 px-3 py-0.5 rounded-full" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+                        {p.class.name}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
