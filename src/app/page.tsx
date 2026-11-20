@@ -69,11 +69,11 @@ export default async function Home() {
 
       {/* Quick Nav Cards for Admin */}
       {session.role !== "SERVANT" && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
           {isAdmin && (
             <Link
               href="/classes"
-              className="church-card p-5 text-center transition-all hover:shadow-lg group"
+              className="church-card p-5 text-center transition-all hover:shadow-lg group w-40"
               style={{ borderTop: "3px solid var(--gold)" }}
             >
               <div
@@ -89,7 +89,7 @@ export default async function Home() {
 
           <Link
             href="/servants"
-            className="church-card p-5 text-center transition-all hover:shadow-lg group"
+            className="church-card p-5 text-center transition-all hover:shadow-lg group w-40"
             style={{ borderTop: "3px solid var(--gold)" }}
           >
             <div
@@ -104,7 +104,7 @@ export default async function Home() {
 
           <Link
             href="/persons"
-            className="church-card p-5 text-center transition-all hover:shadow-lg group"
+            className="church-card p-5 text-center transition-all hover:shadow-lg group w-40"
             style={{ borderTop: "3px solid var(--gold)" }}
           >
             <div
@@ -119,7 +119,7 @@ export default async function Home() {
 
           <Link
             href="/reports"
-            className="church-card p-5 text-center transition-all hover:shadow-lg group"
+            className="church-card p-5 text-center transition-all hover:shadow-lg group w-40"
             style={{ borderTop: "3px solid var(--gold)" }}
           >
             <div
