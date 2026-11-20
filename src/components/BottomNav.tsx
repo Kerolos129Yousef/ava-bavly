@@ -78,7 +78,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
       label: "الرئيسية",
       isCenter: true,
       icon: (active: boolean) => (
-        <svg width="26" height="26" viewBox="0 0 24 24" fill={active ? "var(--gold)" : "none"} stroke={active ? "var(--gold)" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={active ? "var(--gold)" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
@@ -139,7 +139,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
                       ? "linear-gradient(135deg, var(--gold), var(--gold-dark))"
                       : isChristmas ? "linear-gradient(135deg, #0f1f0f, #091409)" : "linear-gradient(135deg, var(--navy), var(--navy-dark))",
                     border: isChristmas ? "3px solid rgba(255,215,0,0.3)" : "3px solid var(--navy-dark)",
-                    color: active ? "white" : "var(--cream)",
+                    color: active ? "white" : isChristmas ? "#ffd700" : "var(--cream)",
                   }}
                 >
                   {tab.icon(active)}
