@@ -137,8 +137,8 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
                   style={{
                     background: active
                       ? "linear-gradient(135deg, var(--gold), var(--gold-dark))"
-                      : "linear-gradient(135deg, var(--navy), var(--navy-dark))",
-                    border: "3px solid var(--navy-dark)",
+                      : isChristmas ? "linear-gradient(135deg, #0f1f0f, #091409)" : "linear-gradient(135deg, var(--navy), var(--navy-dark))",
+                    border: isChristmas ? "3px solid rgba(255,215,0,0.3)" : "3px solid var(--navy-dark)",
                     color: active ? "white" : "var(--cream)",
                   }}
                 >
@@ -146,7 +146,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
                 </div>
                 <span
                   className="text-[10px] mt-0.5 font-medium"
-                  style={{ color: active ? "var(--gold)" : "var(--cream-dark)" }}
+                  style={{ color: active ? "var(--gold)" : isChristmas ? "rgba(255,255,255,0.6)" : "var(--cream-dark)" }}
                 >
                   {tab.label}
                 </span>
@@ -162,12 +162,12 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
               href={tab.href}
               className="flex flex-col items-center py-1.5 px-2 min-w-[56px] relative"
             >
-              <span className="relative" style={{ color: active ? "var(--gold)" : "var(--cream-dark)" }}>
+              <span className="relative" style={{ color: active ? "var(--gold)" : isChristmas ? "rgba(255,255,255,0.6)" : "var(--cream-dark)" }}>
                 {tab.icon(active)}
                 {showBadge && (
                   <span
                     className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-bold px-1"
-                    style={{ background: "var(--burgundy)", color: "white" }}
+                    style={{ background: isChristmas ? "#c41e3a" : "var(--burgundy)", color: "white" }}
                   >
                     {unreadCount > 9 ? "+9" : unreadCount}
                   </span>
@@ -175,7 +175,7 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
               </span>
               <span
                 className="text-[10px] mt-1 font-medium"
-                style={{ color: active ? "var(--gold)" : "var(--cream-dark)" }}
+                style={{ color: active ? "var(--gold)" : isChristmas ? "rgba(255,255,255,0.6)" : "var(--cream-dark)" }}
               >
                 {tab.label}
               </span>
