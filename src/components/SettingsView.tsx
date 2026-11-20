@@ -1,0 +1,207 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface SessionUser {
+  id: string;
+  name: string;
+  role: string;
+}
+
+const roleLabels: Record<string, string> = {
+  SERVANT: "خادم",
+  CLASS_ADMIN: "أمين فصل",
+  CLASS_ASSISTANT: "مساعد أمين الفصل",
+  MINISTRY_ADMIN: "أمين الخدمة",
+};
+
+export default function SettingsView({ session }: { session: SessionUser }) {
+  const router = useRouter();
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: "error", text: "كلمة المرور الجديدة غير متطابقة" });
+      return;
+    }
+    if (newPassword.length < 6) {
+      setMessage({ type: "error", text: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" });
+      return;
+    }
+    setLoading(true);
+    setMessage(null);
+    const res = await fetch("/api/auth/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    if (res.ok) {
+      setMessage({ type: "success", text: "تم تغيير كلمة المرور بنجاح" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setChangingPassword(false);
+    } else {
+      const data = await res.json();
+      setMessage({ type: "error", text: data.error || "خطأ في تغيير كلمة المرور" });
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Profile Card */}
+      <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
+        <div className="p-6 flex items-center gap-4">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl flex-shrink-0"
+            style={{
+              background: "linear-gradient(135deg, var(--gold), var(--gold-dark))",
+              color: "white",
+            }}
+          >
+            {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+          </div>
+          <div>
+            <h2 className="font-bold text-lg font-amiri" style={{ color: "var(--navy)" }}>{session.name}</h2>
+            <span
+              className="inline-block text-xs mt-1 px-3 py-0.5 rounded-full"
+              style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}
+            >
+              {roleLabels[session.role]}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Change Password */}
+      <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
+        <div className="p-6">
+          <h3 className="font-bold font-amiri mb-4" style={{ color: "var(--navy)" }}>
+            🔒 الأمان
+          </h3>
+
+          {message && (
+            <div
+              className="mb-4 px-4 py-2.5 rounded-lg text-sm"
+              style={{
+                background: message.type === "success" ? "rgba(76, 175, 80, 0.1)" : "rgba(122, 45, 60, 0.1)",
+                color: message.type === "success" ? "#2e7d32" : "var(--burgundy)",
+                border: `1px solid ${message.type === "success" ? "rgba(76, 175, 80, 0.3)" : "rgba(122, 45, 60, 0.3)"}`,
+              }}
+            >
+              {message.text}
+            </div>
+          )}
+
+          {!changingPassword ? (
+            <button
+              onClick={() => setChangingPassword(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all hover:shadow"
+              style={{ background: "var(--cream)", color: "var(--navy)", border: "1px solid var(--cream-dark)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              تغيير كلمة المرور
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>كلمة المرور الحالية</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full rounded-lg px-3 py-2"
+                  style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>كلمة المرور الجديدة</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full rounded-lg px-3 py-2"
+                  style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>تأكيد كلمة المرور</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full rounded-lg px-3 py-2"
+                  style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleChangePassword}
+                  disabled={loading}
+                  className="btn-gold text-sm disabled:opacity-50"
+                >
+                  {loading ? "جاري التغيير..." : "حفظ"}
+                </button>
+                <button
+                  onClick={() => { setChangingPassword(false); setMessage(null); }}
+                  className="btn-navy text-sm"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* App Info */}
+      <div className="church-card overflow-hidden" style={{ borderTop: "3px solid var(--gold)" }}>
+        <div className="p-6">
+          <h3 className="font-bold font-amiri mb-4" style={{ color: "var(--navy)" }}>
+            ℹ️ عن التطبيق
+          </h3>
+          <div className="space-y-2 text-sm" style={{ color: "var(--navy-light)" }}>
+            <div className="flex justify-between">
+              <span>الإصدار</span>
+              <span style={{ color: "var(--navy)" }}>0.1.0</span>
+            </div>
+            <div className="flex justify-between">
+              <span>التطبيق</span>
+              <span style={{ color: "var(--navy)" }}>أفا بافلي</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Logout — mobile visible, desktop too */}
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium transition-all church-card"
+        style={{ color: "var(--burgundy)", border: "1px solid rgba(122, 45, 60, 0.2)" }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        تسجيل خروج
+      </button>
+    </div>
+  );
+}
