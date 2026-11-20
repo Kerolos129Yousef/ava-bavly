@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 interface SessionUser {
   id: string;
   name: string;
+  photo?: string | null;
   role: string;
 }
 
@@ -164,16 +165,25 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
 
         {/* User profile section */}
         <div className="pt-14 px-5 pb-6 text-center" style={{ borderBottom: "1px solid rgba(201, 168, 76, 0.2)" }}>
-          <div
-            className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-3xl mb-3"
-            style={{
-              background: "linear-gradient(135deg, var(--gold), var(--gold-dark))",
-              color: "white",
-              border: "3px solid rgba(201, 168, 76, 0.3)",
-            }}
-          >
-            {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-          </div>
+          {session.photo ? (
+            <img
+              src={session.photo}
+              alt={session.name}
+              className="w-20 h-20 mx-auto rounded-full object-cover mb-3"
+              style={{ border: "3px solid rgba(201, 168, 76, 0.3)" }}
+            />
+          ) : (
+            <div
+              className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-3xl mb-3"
+              style={{
+                background: "linear-gradient(135deg, var(--gold), var(--gold-dark))",
+                color: "white",
+                border: "3px solid rgba(201, 168, 76, 0.3)",
+              }}
+            >
+              {session.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+            </div>
+          )}
           <h3 className="font-bold text-lg font-amiri" style={{ color: "var(--cream)" }}>
             {session.name}
           </h3>

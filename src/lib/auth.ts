@@ -8,6 +8,7 @@ export interface SessionUser {
   id: string;
   username: string;
   name: string;
+  photo: string | null;
   role: Role;
   servantId: string | null;
   classId: string | null;
@@ -47,6 +48,7 @@ export async function getSession(): Promise<SessionUser | null> {
     id: user.id,
     username: user.username,
     name: user.name,
+    photo: user.photo ?? null,
     role: user.role as Role,
     servantId: user.servantId,
     classId: user.classId,

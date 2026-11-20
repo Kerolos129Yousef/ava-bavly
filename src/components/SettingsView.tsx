@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 interface SessionUser {
   id: string;
   name: string;
+  photo?: string | null;
   role: string;
 }
 
