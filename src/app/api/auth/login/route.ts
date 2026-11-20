@@ -10,6 +10,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "بيانات الدخول غلط" }, { status: 401 });
   }
 
+  if (user.status === "PENDING") {
+    return NextResponse.json({ error: "طلب التسجيل في انتظار موافقة أمين الخدمة" }, { status: 403 });
+  }
+
+  if (user.status === "REJECTED") {
+    return NextResponse.json({ error: "تم رفض طلب التسجيل — تواصل مع أمين الخدمة" }, { status: 403 });
+  }
+
   if (user.suspended) {
     return NextResponse.json({ error: "الحساب معلّق — تواصل مع أمين الخدمة" }, { status: 403 });
   }

@@ -39,6 +39,11 @@ const migrations = [
     desc: "Add lastSeenNotifications column to User",
   },
   {
+    check: "SELECT COUNT(*) as c FROM pragma_table_info('User') WHERE name='status'",
+    sql: "ALTER TABLE User ADD COLUMN status TEXT NOT NULL DEFAULT 'APPROVED'",
+    desc: "Add status column to User",
+  },
+  {
     check: "SELECT COUNT(*) as c FROM sqlite_master WHERE type='table' AND name='PushSubscription'",
     sql: `CREATE TABLE PushSubscription (
       id TEXT PRIMARY KEY NOT NULL,

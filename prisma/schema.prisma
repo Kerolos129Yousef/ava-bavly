@@ -15,6 +15,7 @@ model User {
   name      String
   photo     String?
   role      String   // SERVANT, CLASS_ADMIN, CLASS_ASSISTANT, MINISTRY_ADMIN
+  status    String   @default("APPROVED") // PENDING, APPROVED, REJECTED
   suspended Boolean  @default(false)
   servantId String?
   servant   Servant? @relation(fields: [servantId], references: [id])

@@ -10,6 +10,7 @@ interface User {
   username: string;
   name: string;
   role: string;
+  status?: string;
   servantId?: string | null;
   classId?: string | null;
   suspended?: boolean;
@@ -43,6 +44,47 @@ export default function UsersList({
   const [editError, setEditError] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [suspendingId, setSuspendingId] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const pendingUsers = users.filter((u) => u.status === "PENDING");
+  const activeUsers = users.filter((u) => u.status !== "PENDING");
+
+  const handleApprove = async (u: User, role: string, servantId?: string, classId?: string) => {
+    setActionLoading(u.id);
+    const res = await fetch(`/api/users/${u.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: u.name,
+        role,
+        status: "APPROVED",
+        servantId: servantId || "",
+        classId: classId || "",
+      }),
+    });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      alert(data.error || "خطأ");
+    }
+    setActionLoading(null);
+  };
+
+  const handleReject = async (u: User) => {
+    if (!confirm(`هل أنت متأكد من رفض طلب "${u.name}"؟`)) return;
+    setActionLoading(u.id);
+    const res = await fetch(`/api/users/${u.id}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      router.refresh();
+    } else {
+      const data = await res.json();
+      alert(data.error || "خطأ");
+    }
+    setActionLoading(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +169,29 @@ export default function UsersList({
 
   return (
     <div>
+      {/* Pending Registration Requests */}
+      {pendingUsers.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-bold font-amiri mb-3 flex items-center gap-2" style={{ color: "var(--navy)" }}>
+            <span className="w-3 h-3 rounded-full animate-pulse" style={{ background: "var(--gold)" }} />
+            طلبات تسجيل جديدة ({pendingUsers.length})
+          </h2>
+          <div className="space-y-3">
+            {pendingUsers.map((u) => (
+              <PendingUserCard
+                key={u.id}
+                user={u}
+                servants={servants}
+                classes={classes}
+                loading={actionLoading === u.id}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <button
         onClick={() => setShowForm(!showForm)}
         className={showForm ? "btn-navy mb-4" : "btn-gold mb-4"}
@@ -185,7 +250,7 @@ export default function UsersList({
       )}
 
       <div className="space-y-3">
-        {users.map((u) => (
+        {activeUsers.map((u) => (
           <div key={u.id} className="church-card p-4" style={{ borderRight: `3px solid ${u.suspended ? "var(--burgundy)" : "var(--gold)"}`, opacity: u.suspended ? 0.7 : 1 }}>
             {editingId === u.id ? (
               <form onSubmit={handleEdit} className="space-y-3">
@@ -278,9 +343,99 @@ export default function UsersList({
             )}
           </div>
         ))}
-        {users.length === 0 && (
+        {activeUsers.length === 0 && (
           <div className="church-card text-center py-8" style={{ color: "var(--navy-light)" }}>لا يوجد مستخدمين</div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function PendingUserCard({
+  user,
+  servants,
+  classes,
+  loading,
+  onApprove,
+  onReject,
+}: {
+  user: User;
+  servants: Servant[];
+  classes: ClassItem[];
+  loading: boolean;
+  onApprove: (u: User, role: string, servantId?: string, classId?: string) => void;
+  onReject: (u: User) => void;
+}) {
+  const [role, setRole] = useState("SERVANT");
+  const [servantId, setServantId] = useState("");
+  const [classId, setClassId] = useState("");
+
+  return (
+    <div className="church-card p-5" style={{ borderRight: "3px solid var(--gold)", background: "var(--gold-pale)" }}>
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-lg" style={{ color: "var(--navy)" }}>{user.name}</span>
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "var(--gold)", color: "white" }}>
+              جديد
+            </span>
+          </div>
+          <p className="text-sm mt-1" style={{ color: "var(--navy-light)" }}>اسم المستخدم: {user.username}</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>الدور</label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+            style={{ background: "white" }}
+          >
+            <option value="SERVANT">خادم</option>
+            <option value="CLASS_ADMIN">أمين فصل</option>
+            <option value="CLASS_ASSISTANT">مساعد أمين الفصل</option>
+            <option value="MINISTRY_ADMIN">أمين الخدمة</option>
+          </select>
+        </div>
+        {role === "SERVANT" && (
+          <div>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>ربط بخادم</label>
+            <select value={servantId} onChange={(e) => setServantId(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ background: "white" }}>
+              <option value="">-- اختياري --</option>
+              {servants.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+        )}
+        {(role === "CLASS_ADMIN" || role === "CLASS_ASSISTANT") && (
+          <div>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--navy)" }}>ربط بفصل</label>
+            <select value={classId} onChange={(e) => setClassId(e.target.value)} className="w-full border rounded-lg px-3 py-2 text-sm" style={{ background: "white" }}>
+              <option value="">-- اختر فصل --</option>
+              {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={() => onApprove(user, role, servantId, classId)}
+          disabled={loading}
+          className="px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+          style={{ background: "#166534", color: "white" }}
+        >
+          {loading ? "..." : "✓ موافقة"}
+        </button>
+        <button
+          onClick={() => onReject(user)}
+          disabled={loading}
+          className="px-4 py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+          style={{ background: "var(--burgundy)", color: "white" }}
+        >
+          {loading ? "..." : "✕ رفض"}
+        </button>
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "غير مسموح" }, { status: 403 });
 
   const { id } = await params;
-  const { name, role, servantId, classId, password, suspended } = await req.json();
+  const { name, role, servantId, classId, password, suspended, status } = await req.json();
 
   if (!name?.trim() || !role) {
     return NextResponse.json({ error: "الاسم والدور مطلوبين" }, { status: 400 });
@@ -37,6 +37,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (typeof suspended === "boolean") {
     data.suspended = suspended;
+  }
+
+  if (status && ["APPROVED", "REJECTED", "PENDING"].includes(status)) {
+    data.status = status;
   }
 
   if (password?.trim()) {
