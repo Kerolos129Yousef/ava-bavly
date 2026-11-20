@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import PersonsView from "@/components/PersonsView";
 
 export const dynamic = "force-dynamic";
 
@@ -18,66 +18,38 @@ export default async function PersonsPage() {
 
   const persons = await prisma.person.findMany({
     where: personWhere,
-    include: { class: true },
+    include: {
+      class: { select: { id: true, name: true } },
+      servant: { select: { id: true, name: true, photo: true } },
+    },
     orderBy: { name: "asc" },
+  });
+
+  const classes = await prisma.class.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
   });
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold font-amiri" style={{ color: "var(--navy)" }}>
-          <span style={{ color: "var(--gold)" }}>☦</span> المخدومين
-        </h1>
-        {session.role !== "SERVANT" && (
-          <Link href="/persons/new" className="btn-gold">
-            + إضافة مخدوم
-          </Link>
-        )}
-      </div>
-
-      {persons.length === 0 ? (
-        <div className="church-card text-center py-16">
-          <p className="text-4xl mb-4" style={{ color: "var(--gold)" }}>🕊</p>
-          <p className="text-lg" style={{ color: "var(--navy-light)" }}>لا يوجد مخدومين مسجلين</p>
-          {session.role !== "SERVANT" && (
-            <Link href="/persons/new" className="btn-gold inline-block mt-4">
-              أضف أول مخدوم
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {persons.map((p) => (
-            <Link
-              key={p.id}
-              href={`/persons/${p.id}`}
-              className="church-card p-4 flex flex-col items-center text-center group transition-all"
-            >
-              {p.photo ? (
-                <img
-                  src={p.photo}
-                  alt={p.name}
-                  className="w-24 h-24 rounded-full object-cover transition-all group-hover:border-gold"
-                  style={{ border: "3px solid var(--gold-pale)" }}
-                />
-              ) : (
-                <div
-                  className="w-24 h-24 rounded-full flex items-center justify-center text-3xl transition-all"
-                  style={{ background: "var(--gold-pale)", border: "3px solid var(--cream-dark)", color: "var(--gold-dark)" }}
-                >
-                  👤
-                </div>
-              )}
-              <h3 className="mt-3 font-bold text-sm" style={{ color: "var(--navy)" }}>{p.name}</h3>
-              {p.class && (
-                <span className="text-xs mt-1 px-2 py-0.5 rounded-full" style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
-                  {p.class.name}
-                </span>
-              )}
-            </Link>
-          ))}
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-6 font-amiri" style={{ color: "var(--navy)" }}>
+        <span style={{ color: "var(--gold)" }}>☦</span> المخدومين
+      </h1>
+      <PersonsView
+        persons={persons.map((p) => ({
+          id: p.id,
+          name: p.name,
+          photo: p.photo,
+          phone: p.phone,
+          guardianName: p.guardianName,
+          guardianPhone: p.guardianPhone,
+          classId: p.class?.id || null,
+          className: p.class?.name || null,
+          servant: p.servant ? { id: p.servant.id, name: p.servant.name, photo: p.servant.photo } : null,
+        }))}
+        classes={classes}
+        canAdd={session.role !== "SERVANT"}
+      />
     </div>
   );
 }
