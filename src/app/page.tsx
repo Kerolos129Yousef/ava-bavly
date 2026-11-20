@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import PersonsView from "@/components/PersonsView";
 
 export default async function Home() {
   const session = await getSession();
@@ -16,13 +17,23 @@ export default async function Home() {
     classWhere = { id: session.classId };
   }
 
-  const [totalPersons, totalServants, classes] = await Promise.all([
+  const [totalPersons, totalServants, classes, persons] = await Promise.all([
     prisma.person.count({ where: personWhere }),
     session.role !== "SERVANT" ? prisma.servant.count() : Promise.resolve(0),
     prisma.class.findMany({
       where: classWhere,
       include: { _count: { select: { persons: true } } },
     }),
+    session.role === "SERVANT"
+      ? prisma.person.findMany({
+          where: personWhere,
+          include: {
+            class: { select: { id: true, name: true } },
+            servant: { select: { id: true, name: true, photo: true } },
+          },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
   ]);
 
   const classIcons: Record<string, string> = {
@@ -139,18 +150,24 @@ export default async function Home() {
         </div>
       )}
 
-      {/* Total + Actions for SERVANT role */}
+      {/* Servant: show persons directly */}
       {session.role === "SERVANT" && (
-        <div className="church-card p-8 text-center" style={{ borderTop: "3px solid var(--gold)" }}>
-          <p className="text-sm mb-2" style={{ color: "var(--navy-light)" }}>عدد مخدوميك</p>
-          <p className="text-5xl font-bold" style={{ color: "var(--navy)" }}>{totalPersons}</p>
-          <div className="mt-2 mx-auto w-16 h-0.5" style={{ background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
-          <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <Link href="/persons" className="btn-navy">
-              عرض المخدومين
-            </Link>
-          </div>
-        </div>
+        <PersonsView
+          persons={persons.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            photo: p.photo,
+            phone: p.phone,
+            guardianName: p.guardianName,
+            guardianPhone: p.guardianPhone,
+            classId: p.class?.id || null,
+            className: p.class?.name || null,
+            servant: p.servant ? { id: p.servant.id, name: p.servant.name, photo: p.servant.photo } : null,
+          }))}
+          classes={[]}
+          canAdd={false}
+          role="SERVANT"
+        />
       )}
     </div>
   );
