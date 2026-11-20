@@ -73,16 +73,19 @@ model Servant {
   education     String?
   maritalStatus String?
   job           String?
+  classId       String?
+  class         Class?   @relation(fields: [classId], references: [id])
   persons       Person[]
   users         User[]
 }
 
 model Class {
-  id      String   @id @default(cuid())
-  name    String   @unique
-  type    String
-  persons Person[]
-  users   User[]
+  id       String    @id @default(cuid())
+  name     String    @unique
+  type     String
+  persons  Person[]
+  users    User[]
+  servants Servant[]
 }
 
 model BehaviorNote {

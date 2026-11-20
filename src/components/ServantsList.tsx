@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface Servant {
@@ -14,6 +14,8 @@ interface Servant {
   education: string | null;
   maritalStatus: string | null;
   job: string | null;
+  classId: string | null;
+  className: string | null;
   personsCount: number;
   persons: { id: string; name: string }[];
 }
@@ -42,8 +44,51 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
   const [education, setEducation] = useState("");
   const [maritalStatus, setMaritalStatus] = useState("");
   const [job, setJob] = useState("");
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [classId, setClassId] = useState("");
+  const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/classes").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setClasses(d); });
+  }, []);
+
+  const compressImage = (file: File, maxW = 400, quality = 0.7): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => resolve(b!), "image/jpeg", quality);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", new File([compressed], "photo.jpg", { type: "image/jpeg" }));
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        setPhoto(url);
+      } else {
+        const err = await res.json();
+        alert(err.error || "خطأ في رفع الصورة");
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const addServant = async () => {
     if (!name.trim()) return;
@@ -51,11 +96,13 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
     const res = await fetch("/api/servants", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, email, address, education, maritalStatus, job }),
+      body: JSON.stringify({ name, phone, email, photo, address, education, maritalStatus, job, classId: classId || null }),
     });
     if (res.ok) {
       setName(""); setPhone(""); setEmail("");
       setAddress(""); setEducation(""); setMaritalStatus(""); setJob("");
+      setPhoto(null);
+      setClassId("");
       setShowForm(false);
       router.refresh();
     }
@@ -78,6 +125,31 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
           <h3 className="font-bold font-amiri text-lg mb-4" style={{ color: "var(--navy)" }}>
             <span style={{ color: "var(--gold)" }}>☦</span> إضافة خادم جديد
           </h3>
+          <div className="flex items-center gap-4 mb-4">
+            {photo ? (
+              <img src={photo} alt="صورة الخادم" className="w-20 h-20 rounded-full object-cover"
+                style={{ border: "3px solid var(--gold-pale)" }} />
+            ) : (
+              <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl"
+                style={{ background: "var(--navy)", color: "var(--gold)", border: "3px solid var(--gold-pale)" }}>
+                📷
+              </div>
+            )}
+            <div>
+              <label className="btn-gold text-sm cursor-pointer inline-block">
+                {uploading ? "جاري الرفع..." : photo ? "تغيير الصورة" : "رفع صورة"}
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={handlePhotoUpload} disabled={uploading} />
+              </label>
+              {photo && (
+                <button type="button" onClick={() => setPhoto(null)}
+                  className="text-xs mr-2 hover:opacity-80" style={{ color: "var(--burgundy)" }}>
+                  إزالة
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>الاسم *</label>
@@ -112,6 +184,16 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
                 <option value="أعزب">أعزب</option>
                 <option value="متزوج">متزوج</option>
                 <option value="مخطوب">مخطوب</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>الفصل</label>
+              <select value={classId} onChange={(e) => setClassId(e.target.value)}
+                className="w-full rounded-lg px-3 py-2" style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}>
+                <option value="">اختر الفصل...</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
             <div className="md:col-span-2">
@@ -164,6 +246,11 @@ export default function ServantsList({ servants, canAdd = true }: { servants: Se
                     </div>
                   </div>
                   {s.job && <p className="text-sm truncate" style={{ color: "var(--gold-dark)" }}>{s.job}</p>}
+                  {s.className && (
+                    <p className="text-xs mt-0.5" style={{ color: "var(--navy-light)" }}>
+                      <span style={{ color: "var(--gold)" }}>📖</span> {s.className}
+                    </p>
+                  )}
                 </div>
               </div>
 

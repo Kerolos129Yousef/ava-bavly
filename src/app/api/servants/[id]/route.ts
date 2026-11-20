@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const servant = await prisma.servant.findUnique({
     where: { id },
-    include: { persons: { select: { id: true, name: true } } },
+    include: { persons: { select: { id: true, name: true } }, class: { select: { id: true, name: true } } },
   });
   if (!servant) return NextResponse.json({ error: "غير موجود" }, { status: 404 });
   return NextResponse.json(servant);
@@ -30,10 +30,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       name: data.name,
       phone: data.phone || null,
       email: data.email || null,
+      photo: data.photo || null,
       address: data.address || null,
       education: data.education || null,
       maritalStatus: data.maritalStatus || null,
       job: data.job || null,
+      classId: data.classId || null,
     },
   });
   return NextResponse.json(servant);

@@ -17,6 +17,7 @@ export default async function ServantsPage() {
     where,
     include: {
       persons: { select: { id: true, name: true } },
+      class: { select: { id: true, name: true } },
       _count: { select: { persons: true } },
     },
     orderBy: { name: "asc" },
@@ -38,6 +39,8 @@ export default async function ServantsPage() {
           education: s.education,
           maritalStatus: s.maritalStatus,
           job: s.job,
+          classId: s.class?.id || null,
+          className: s.class?.name || null,
           personsCount: s._count.persons,
           persons: s.persons,
         }))}

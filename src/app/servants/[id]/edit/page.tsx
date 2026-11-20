@@ -17,12 +17,51 @@ export default function EditServantPage() {
   const [maritalStatus, setMaritalStatus] = useState("");
   const [job, setJob] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
+  const [classId, setClassId] = useState("");
+  const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [persons, setPersons] = useState<{ id: string; name: string }[]>([]);
 
+  const compressImage = (file: File, maxW = 400, quality = 0.7): Promise<Blob> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => resolve(b!), "image/jpeg", quality);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const compressed = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", new File([compressed], "photo.jpg", { type: "image/jpeg" }));
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const { url } = await res.json();
+        setPhoto(url);
+      } else {
+        const err = await res.json();
+        alert(err.error || "خطأ في رفع الصورة");
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
   useEffect(() => {
+    fetch("/api/classes").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setClasses(d); });
     fetch(`/api/servants/${id}`)
       .then((r) => r.json())
       .then((d) => {
@@ -34,6 +73,7 @@ export default function EditServantPage() {
         setMaritalStatus(d.maritalStatus || "");
         setJob(d.job || "");
         setPhoto(d.photo || null);
+        setClassId(d.class?.id || "");
         setPersons(d.persons || []);
         setLoading(false);
       });
@@ -47,7 +87,7 @@ export default function EditServantPage() {
     const res = await fetch(`/api/servants/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, email, address, education, maritalStatus, job }),
+      body: JSON.stringify({ name, phone, email, photo, address, education, maritalStatus, job, classId: classId || null }),
     });
 
     if (res.ok) {
@@ -82,18 +122,34 @@ export default function EditServantPage() {
       <div className="church-card p-6" style={{ borderTop: "3px solid var(--gold)" }}>
         {/* Photo & Name Header */}
         <div className="flex items-center gap-4 mb-6 pb-4" style={{ borderBottom: "1px solid var(--cream-dark)" }}>
-          {photo ? (
-            <img src={photo} alt={name} className="w-20 h-20 rounded-full object-cover"
-              style={{ border: "3px solid var(--gold-pale)" }} />
-          ) : (
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: "var(--navy)", color: "var(--gold)", border: "3px solid var(--gold-pale)" }}>
-              {name.split(" ").map(w => w[0]).join("").slice(0, 2)}
-            </div>
-          )}
-          <div>
+          <div className="relative">
+            {photo ? (
+              <img src={photo} alt={name} className="w-20 h-20 rounded-full object-cover"
+                style={{ border: "3px solid var(--gold-pale)" }} />
+            ) : (
+              <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl"
+                style={{ background: "var(--navy)", color: "var(--gold)", border: "3px solid var(--gold-pale)" }}>
+                {name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
             <h2 className="text-xl font-bold" style={{ color: "var(--navy)" }}>{name}</h2>
             {job && <p className="text-sm" style={{ color: "var(--gold-dark)" }}>{job}</p>}
+            <div className="mt-2 flex items-center gap-2">
+              <label className="text-xs px-3 py-1.5 rounded-lg cursor-pointer hover:opacity-80"
+                style={{ background: "var(--gold-pale)", color: "var(--gold-dark)" }}>
+                {uploading ? "جاري الرفع..." : photo ? "تغيير الصورة" : "رفع صورة"}
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={handlePhotoUpload} disabled={uploading} />
+              </label>
+              {photo && (
+                <button type="button" onClick={() => setPhoto(null)}
+                  className="text-xs hover:opacity-80" style={{ color: "var(--burgundy)" }}>
+                  إزالة
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -145,6 +201,17 @@ export default function EditServantPage() {
                 <option value="أعزب">أعزب</option>
                 <option value="متزوج">متزوج</option>
                 <option value="مخطوب">مخطوب</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: "var(--navy)" }}>الفصل</label>
+              <select value={classId} onChange={(e) => setClassId(e.target.value)}
+                className="w-full rounded-lg px-3 py-2.5"
+                style={{ border: "2px solid var(--cream-dark)", background: "var(--cream)" }}>
+                <option value="">اختر الفصل...</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
             <div className="md:col-span-2">
