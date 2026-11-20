@@ -12,10 +12,17 @@ export interface SeasonalTheme {
     cream: string;
     creamDark: string;
     accent?: string;
+    cardBg?: string;
+    cardBorder?: string;
+    textPrimary?: string;
+    textSecondary?: string;
   };
   splashBg: string;
   overlay: "snow" | "stars" | "hearts" | "none";
   emoji: string;
+  navbarBg?: string;
+  quickNavIcons?: Record<string, string>;
+  loginEmoji?: string;
 }
 
 const themes: Record<string, SeasonalTheme> = {
@@ -41,20 +48,32 @@ const themes: Record<string, SeasonalTheme> = {
     id: "christmas",
     name: "الكريسماس",
     colors: {
-      navy: "#1a2e1a",
-      navyLight: "#2d4a2d",
-      navyDark: "#0f1f0f",
-      gold: "#d4a017",
-      goldLight: "#ffd700",
-      goldDark: "#b8860b",
-      goldPale: "#fff8dc",
-      cream: "#fefefa",
-      creamDark: "#f0edd4",
+      navy: "#0f1f0f",
+      navyLight: "#1a2e1a",
+      navyDark: "#091409",
+      gold: "#ffd700",
+      goldLight: "#ffe44d",
+      goldDark: "#d4a017",
+      goldPale: "rgba(255, 215, 0, 0.15)",
+      cream: "#0d1a0d",
+      creamDark: "#162616",
       accent: "#c41e3a",
+      cardBg: "rgba(26, 46, 26, 0.85)",
+      cardBorder: "rgba(255, 215, 0, 0.25)",
+      textPrimary: "#ffffff",
+      textSecondary: "rgba(255, 255, 255, 0.7)",
     },
-    splashBg: "#0f1f0f",
+    splashBg: "#091409",
     overlay: "snow",
     emoji: "🎄",
+    navbarBg: "linear-gradient(135deg, #8B0000 0%, #c41e3a 50%, #8B0000 100%)",
+    quickNavIcons: {
+      classes: "🎁",
+      servants: "🎅",
+      persons: "👼",
+      reports: "📊",
+    },
+    loginEmoji: "🎄",
   },
   easter: {
     id: "easter",

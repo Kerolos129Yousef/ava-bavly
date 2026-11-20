@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { getActiveTheme } from "@/lib/themes";
 
 interface SessionUser {
   id: string;
@@ -26,6 +27,9 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
     if (!session || pathname !== "/notifications") return;
     fetch("/api/notifications/seen", { method: "POST" }).then(() => setUnreadCount(0)).catch(() => {});
   }, [session, pathname]);
+
+  const theme = getActiveTheme();
+  const isChristmas = theme.id === "christmas";
 
   if (!session || pathname === "/login") return null;
 
@@ -111,8 +115,8 @@ export default function BottomNav({ session }: { session: SessionUser | null }) 
     <div
       className="md:hidden fixed bottom-0 left-0 right-0 z-50"
       style={{
-        background: "var(--navy-dark)",
-        borderTop: "1px solid rgba(201, 168, 76, 0.2)",
+        background: isChristmas ? "linear-gradient(135deg, #8B0000, #6B0000)" : "var(--navy-dark)",
+        borderTop: isChristmas ? "2px solid rgba(255, 215, 0, 0.3)" : "1px solid rgba(201, 168, 76, 0.2)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >

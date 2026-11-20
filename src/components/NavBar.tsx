@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { getActiveTheme } from "@/lib/themes";
 
 interface SessionUser {
   id: string;
@@ -53,6 +54,9 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
     router.refresh();
   };
 
+  const theme = getActiveTheme();
+  const isChristmas = theme.id === "christmas";
+
   if (!session) return null;
 
   const desktopLinks = [
@@ -73,7 +77,7 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
     <>
       <nav
         className="shadow-xl sticky top-0 z-50"
-        style={{ background: "linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%)" }}
+        style={{ background: isChristmas ? "linear-gradient(135deg, #8B0000 0%, #c41e3a 50%, #8B0000 100%)" : "linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%)" }}
       >
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Hamburger — mobile only */}
@@ -90,9 +94,9 @@ export default function NavBar({ session }: { session: SessionUser | null }) {
 
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-2xl" style={{ color: "var(--gold)" }}>☦</span>
+            <span className="text-2xl" style={{ color: "var(--gold)" }}>{isChristmas ? "🎄" : "☦"}</span>
             <span className="text-xl font-bold font-amiri" style={{ color: "var(--gold-light)" }}>
-              أفا بافلي
+              {isChristmas ? "🌟 أفا بافلي 🌟" : "أفا بافلي"}
             </span>
           </a>
 

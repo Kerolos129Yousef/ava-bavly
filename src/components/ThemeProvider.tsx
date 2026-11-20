@@ -19,9 +19,14 @@ export default function ThemeProvider() {
     root.style.setProperty("--gold-pale", c.goldPale);
     root.style.setProperty("--cream", c.cream);
     root.style.setProperty("--cream-dark", c.creamDark);
-    if (c.accent) {
-      root.style.setProperty("--accent", c.accent);
-    }
+    if (c.accent) root.style.setProperty("--accent", c.accent);
+    if (c.cardBg) root.style.setProperty("--card-bg", c.cardBg);
+    if (c.cardBorder) root.style.setProperty("--card-border", c.cardBorder);
+    if (c.textPrimary) root.style.setProperty("--text-primary", c.textPrimary);
+    if (c.textSecondary) root.style.setProperty("--text-secondary", c.textSecondary);
+    if (theme.navbarBg) root.style.setProperty("--navbar-bg", theme.navbarBg);
+
+    root.setAttribute("data-theme", theme.id);
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", c.navy);
   }, [theme]);
 
