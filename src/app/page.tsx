@@ -19,7 +19,13 @@ export default async function Home() {
 
   const [totalPersons, totalServants, classes, persons] = await Promise.all([
     prisma.person.count({ where: personWhere }),
-    session.role !== "SERVANT" ? prisma.servant.count() : Promise.resolve(0),
+    session.role !== "SERVANT"
+      ? prisma.servant.count({
+          where: session.classId && session.role !== "MINISTRY_ADMIN"
+            ? { classId: session.classId }
+            : {},
+        })
+      : Promise.resolve(0),
     prisma.class.findMany({
       where: classWhere,
       include: { _count: { select: { persons: true } } },
