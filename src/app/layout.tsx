@@ -47,6 +47,11 @@ export default async function RootLayout({
         {session && <PushSubscriber />}
         <NavBar session={session} />
         <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
+        {session && (
+          <footer className="text-center py-3 pb-20 md:pb-3 text-xs" style={{ color: "var(--navy-light)", opacity: 0.5 }}>
+            إعداد المهندس / كيرلس يوسف — صلوا لأجل الخدمة وضعفي
+          </footer>
+        )}
         <BottomNav session={session} />
       </body>
     </html>
