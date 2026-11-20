@@ -26,7 +26,7 @@ export default async function ClassPersonsPage({ params }: { params: Promise<{ i
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-amiri" style={{ color: "var(--navy)" }}>
-          <span style={{ color: "var(--gold)" }}>☦</span> مخدومين فصل {cls.name}
+          <span style={{ color: "var(--gold)" }}>☦</span> مخدومين {cls.name}
         </h1>
         <Link href={`/classes/${id}`} className="btn-navy text-sm">
           ← رجوع للفصل

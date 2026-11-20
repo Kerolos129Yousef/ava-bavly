@@ -32,7 +32,7 @@ export default async function ClassServantsPage({ params }: { params: Promise<{ 
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold font-amiri" style={{ color: "var(--navy)" }}>
-          <span style={{ color: "var(--gold)" }}>✝</span> خدام فصل {cls.name}
+          <span style={{ color: "var(--gold)" }}>✝</span> خدام {cls.name}
         </h1>
         <Link href={`/classes/${id}`} className="btn-navy text-sm">
           ← رجوع للفصل
