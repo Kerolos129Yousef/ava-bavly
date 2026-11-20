@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
 import NavBar from "@/components/NavBar";
+import BottomNav from "@/components/BottomNav";
 import SplashScreen from "@/components/SplashScreen";
 import RegisterSW from "@/components/RegisterSW";
 
@@ -43,7 +44,8 @@ export default async function RootLayout({
         <SplashScreen />
         <RegisterSW />
         <NavBar session={session} />
-        <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+        <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">{children}</main>
+        <BottomNav session={session} />
       </body>
     </html>
   );
